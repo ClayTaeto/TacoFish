@@ -6,11 +6,11 @@ var mThree = {
     ended: true, // Will be set to true when match-3 is ended
     types: ["type1", "type2", "type3", "type4", "type5"], // All the types of tiles
     data: { // Data for all the types of tiles ["Name", "URL", (match function)]
-        type1: ["Type 1", "../img/type1.png", function() {}],
-        type2: ["Type 2", "../img/type2.png", function() {}],
-        type3: ["Type 3", "../img/type3.png", function() {}],
-        type4: ["Type 4", "../img/type4.png", function() {}],
-        type5: ["Type 5", "../img/type5.png", function() {}]
+        type1: ["Type 1", "img/type1.png", function() {}],
+        type2: ["Type 2", "img/type2.png", function() {}],
+        type3: ["Type 3", "img/type3.png", function() {}],
+        type4: ["Type 4", "img/type4.png", function() {}],
+        type5: ["Type 5", "img/type5.png", function() {}]
     },
     selected: -1, // Piece that is selected
     pieces: [], // Array to store tile objects in
@@ -21,10 +21,11 @@ var mThree = {
         // d (optional) = Spawn in a piece of a certain type
         this.id = c;
         this.spot = [a, b];
-        if(typeof d === "string") {
+        if(d && typeof d === "string") {
             this.type = d;
         }else{
-            this.type = mThree.types[Math.random(0, ((mThree.types).length - 1))];
+            var f = Math.round(Math.random() * ((mThree.types).length - 1));
+            this.type = mThree.types[f];
         }
         this.name = mThree.data[this.type][0];
         this.img = document.createElement("img");
@@ -36,16 +37,12 @@ var mThree = {
         mThree.rows = a;
         mThree.columns = b;
         var f, g;
-        for(var c = 1, d = 1; c <= a && d <= b; c++) {
-            if(c === a) {
-                d++;
-                c = 1;
+        for(var d = 1; d <= b; d++) {
+            for(var c = 1; c <= a; c++) {
+                f = (mThree.pieces).length;
+                g = new mThree.piece(c, d, f);
+                (mThree.pieces).splice(f, 0, g);
             }
-            // These next four lines are broken, but I'm unsure as to why
-            f = (mThree.pieces).length;
-            g = new mThree.piece(c, d, f);
-            (mThree.pieces).splice(f, 0, g);
-            document.querySelector("#log").innerHTML += "<br/>" + c + " ~ " + d;
         }
         mThree.start();
     },
@@ -62,10 +59,11 @@ var mThree = {
         var b = a.getContext("2d");
         if(!mThree.ended) {
             b.clearRect(0, 0, a.width, a.height);
+            b.strokeRect(0, 0, a.width, a.height);
             var d;
             for(var c = 0; c < (mThree.pieces).length; c++) {
                 d = mThree.pieces[c];
-                b.drawImage(d.img, ((d.spot[0] * mThree.tileSize) + (d.spot[0] * mThree.tileSpacing)), ((d.spot[1] * mThree.tileSize) + (d.spot[1] * mThree.tileSpacing)));
+                b.drawImage(d.img, (((d.spot[0] - 1) * mThree.tileSize) + (d.spot[0] * mThree.tileSpacing)), (((d.spot[1] - 1) * mThree.tileSize) + (d.spot[1] * mThree.tileSpacing)));
             }
             window.requestAnimationFrame(mThree.update);
         }else{
