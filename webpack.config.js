@@ -25,7 +25,7 @@ module.exports = {
       },
       { 
         test: /\.less$/,                 
-        loader: "style!less"
+        loader: "style!css!less"
       },      
       {
         test   : /\.(ttf|eot|svg|woff(2)?)(\?[a-z0-9=&.]+)?$/,
@@ -37,7 +37,7 @@ module.exports = {
     path: __dirname + "/dist/",
     filename: "client.min.js"
   },
-  
+
   plugins: debug ? [] : [
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
