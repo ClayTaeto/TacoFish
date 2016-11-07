@@ -1,0 +1,23 @@
+{
+  "name": "tacofish",
+  "version": "0.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "private": true,
+  "dependencies": {
+    "babel-core": "^6.11.4",
+    "babel-loader": "^6.2.0",
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-preset-es2015": "^6.3.13",
+    "file-loader": "^0.9.0",
+    "less-loader": "^2.2.3",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.1"
+  },
+  "scripts": {
+    "dev": "set NODE_ENV=dev&& webpack-dev-server --content-base src --inline --hot",
+    "prod": "set NODE_ENV=production&& webpack -p"
+  },
+  "author": "",
+  "license": "ISC"
+}
