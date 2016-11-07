@@ -34,7 +34,7 @@ module.exports = {
     ]
   },
   output: {
-    path: __dirname + "/dist/",
+    path: __dirname + "/docs/",
     filename: "client.min.js"
   },
 
