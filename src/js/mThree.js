@@ -14,6 +14,16 @@ var mThree = {
     },
     selected: -1, // Piece that is selected
     pieces: [], // Array to store tile objects in
+    getMousePos: function(a, b) { // Function to get mouse's location on canvas
+        var c = a.getBoundingClientRect();
+        return {
+          x: b.clientX - c.left,
+          y: b.clientY - c.top
+        };
+    },
+    checkForMatch: function(a, b) { // Function that will check if there is a match, returns true or false
+       mThree.selected = -1; 
+    },
     piece: function(a, b, c, d) { // Function to create piece object
         // a (required) = Column this piece is in
         // b (required) = Row this piece is in
@@ -50,6 +60,21 @@ var mThree = {
         var a = document.querySelector("#mThree");
         a.width = (mThree.tileSize * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1));
         a.height = (mThree.tileSize * mThree.rows) + (mThree.tileSpacing * (mThree.rows + 1));
+        a.addEventListener("click", function(e) {
+            var a = mThree.getMousePos(document.querySelector("#mThree"), e);
+            var b = ((a.x / (mThree.tileSize + mThree.tileSpacing)) >> 0) + 1;
+            var c = ((a.y / (mThree.tileSize + mThree.tileSpacing)) >> 0) + 1;
+            for(var d = 0; d < (mThree.pieces).length; d++) {
+                if(mThree.pieces[d].spot[0] === b && mThree.pieces[d].spot[1] === c) {
+                    if(mThree.selected !== -1) {
+                        mThree.checkForMatch(d, mThree.selected);
+                    }else{
+                        mThree.selected = d;
+                    }
+                    break;
+                }
+            }
+        });
         mThree.ended = false;
         mThree.update();
     },
@@ -60,10 +85,31 @@ var mThree = {
         if(!mThree.ended) {
             b.clearRect(0, 0, a.width, a.height);
             b.strokeRect(0, 0, a.width, a.height);
-            var d;
+            var d, f, g;
             for(var c = 0; c < (mThree.pieces).length; c++) {
                 d = mThree.pieces[c];
-                b.drawImage(d.img, (((d.spot[0] - 1) * mThree.tileSize) + (d.spot[0] * mThree.tileSpacing)), (((d.spot[1] - 1) * mThree.tileSize) + (d.spot[1] * mThree.tileSpacing)));
+                f = (((d.spot[0] - 1) * mThree.tileSize) + (d.spot[0] * mThree.tileSpacing));
+                g = (((d.spot[1] - 1) * mThree.tileSize) + (d.spot[1] * mThree.tileSpacing));
+                b.drawImage(d.img, f, g);
+                if(c === mThree.selected) {
+                    b.beginPath();
+                    b.moveTo(f + (mThree.tileSize / 2), g);
+                    b.lineTo((f + mThree.tileSize) - mThree.tileSpacing, g);
+                    b.quadraticCurveTo(f + mThree.tileSize, g, f + mThree.tileSize, g + mThree.tileSpacing);
+                    b.lineTo(f + mThree.tileSize, (g + mThree.tileSize) - mThree.tileSpacing);
+                    b.quadraticCurveTo(f + mThree.tileSize, g + mThree.tileSize, (f + mThree.tileSize) - mThree.tileSpacing, g + mThree.tileSize);
+                    b.lineTo(f + mThree.tileSpacing, g + mThree.tileSize);
+                    b.quadraticCurveTo(f, g + mThree.tileSize, f, (g + mThree.tileSize) - mThree.tileSpacing);
+                    b.lineTo(f, g + mThree.tileSpacing);
+                    b.quadraticCurveTo(f, g, f + mThree.tileSpacing, g);
+                    b.lineTo(f + (mThree.tileSize / 2), g);
+                    b.closePath();
+                    b.save();
+                    b.lineWidth = Math.floor(mThree.tileSpacing / 2.5);
+                    b.strokeStyle = "rgba(0, 0, 0, 0.5)";
+                    b.stroke();
+                    b.restore();
+                }
             }
             window.requestAnimationFrame(mThree.update);
         }else{
