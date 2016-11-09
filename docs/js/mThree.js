@@ -33,66 +33,91 @@ var mThree = {
           y: b.clientY - c.top
         };
     },
-    checkForMatch: function(a) { // Function that will check if there is a match, returns true or false
-        // a (required) = Array of location of tile to check for matches with mThree.selected
-        var b = mThree.pieces[a[0]][a[1]];
-        var c = mThree.selected;
-        if(a[1] >= 4 && mThree.pieces[a[0]][a[1] - 4].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 3].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5v, 4 up";
-        }else if(a[1] >= 3 && a[1] <= mThree.rows - 1 && mThree.pieces[a[0]][a[1] - 3].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5v, 3 up 1 down";
-        }else if(a[1] >= 2 && a[1] <= mThree.rows - 2 && mThree.pieces[a[0]][a[1] - 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5v, 2 up 2 down";
-        }else if(a[1] >= 1 && a[1] <= mThree.rows - 3 && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 3].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5v, 1 up 3 down";
-        }else if(a[1] <= mThree.rows - 4 && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 3].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 4].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5v, 4 down";
-        }else if(a[0] >= 4 && mThree.pieces[a[0] - 4][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 3][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5h, 4 left";
-        }else if(a[0] >= 3 && a[0] <= mThree.columns - 1 && mThree.pieces[a[0] - 3][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5h, 3 left 1 right";
-        }else if(a[0] >= 2 && a[0] <= mThree.columns - 2 && mThree.pieces[a[0] - 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 2][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5h, 2 left 2 right";
-        }else if(a[0] >= 1 && a[0] <= mThree.columns - 3 && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 3][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5h, 1 left 3 right";
-        }else if(a[0] <= mThree.columns - 4 && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 3].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 4].type === mThree.pieces[c[0]][c[1]].type) {
-            return "5h, 4 right";
-        }else if(a[1] >= 3 && mThree.pieces[a[0]][a[1] - 3].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4v, 3 up";
-        }else if(a[1] >= 2 && a[1] <= mThree.rows - 1 && mThree.pieces[a[0]][a[1] - 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4v, 2 up 1 down";
-        }else if(a[1] >= 1 && a[1] <= mThree.rows - 2 && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4v, 1 up 2 down";
-        }else if(a[1] <= mThree.rows - 3 && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 3].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4v, 3 down";
-        }else if(a[0] >= 3 && mThree.pieces[a[0] - 3][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4h, 3 left";
-        }else if(a[0] >= 2 && a[0] <= mThree.columns - 1 && mThree.pieces[a[0] - 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4h, 2 left 1 right";
-        }else if(a[0] >= 1 && a[0] <= mThree.columns - 2 && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 2][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4h, 1 left 2 right";
-        }else if(a[0] <= mThree.columns - 3 && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 3][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "4h, 3 right";
-        }else if(a[1] >= 2 && mThree.pieces[a[0]][a[1] - 2].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type) {
-            return "3v, 2 up";
-        }else if(a[1] >= 1 && a[1] <= mThree.rows - 1 && mThree.pieces[a[0]][a[1] - 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type) {
-            return "3v, 1 up 1 down";
-        }else if(a[1] <= mThree.rows - 2 && mThree.pieces[a[0]][a[1] + 1].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0]][a[1] + 2].type === mThree.pieces[c[0]][c[1]].type) {
-            return "3v, 2 down";
-        }else if(a[0] >= 2 && mThree.pieces[a[0] - 2][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "3h, 2 left";
-        }else if(a[0] >= 1 && a[0] <= mThree.columns - 1 && mThree.pieces[a[0] - 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "3h, 1 left 1 right";
-        }else if(a[0] <= mThree.columns - 2 && mThree.pieces[a[0] + 1][a[1]].type === mThree.pieces[c[0]][c[1]].type && mThree.pieces[a[0] + 2][a[1]].type === mThree.pieces[c[0]][c[1]].type) {
-            return "3h, 2 right";
+    checkForMatch: function(a, b, c, d) { // Function that will check if there is a match, returns a string or false
+        // a (required) = Piece #1 location
+        // b (required) = Piece #2 location
+        // c (required) = Type of match to check for
+        // d (required) = Type of switch made
+        var g = [];
+        if(a[1] >= 4 && mThree.pieces[a[0]][a[1] - 4].type === c && mThree.pieces[a[0]][a[1] - 3].type === c && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c) {
+            g.splice(g.length, 0, "5v, 4 up");
         }
-        return false;
+        if(a[1] >= 3 && a[1] <= mThree.rows - 2 && mThree.pieces[a[0]][a[1] - 3].type === c && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c && mThree.pieces[a[0]][a[1] + 1].type === c) {
+            g.splice(g.length, 0, "5v, 3 up 1 down");
+        }
+        if(a[1] >= 2 && a[1] <= mThree.rows - 3 && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c) {
+            g.splice(g.length, 0, "5v, 2 up 2 down");
+        }
+        if(a[1] >= 1 && a[1] <= mThree.rows - 4 && mThree.pieces[a[0]][a[1] - 1].type === c && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c && mThree.pieces[a[0]][a[1] + 3].type === c) {
+            g.splice(g.length, 0, "5v, 1 up 3 down");
+        }
+        if(a[1] <= mThree.rows - 5 && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c && mThree.pieces[a[0]][a[1] + 3].type === c && mThree.pieces[a[0]][a[1] + 4].type === c) {
+            g.splice(g.length, 0, "5v, 4 down");
+        }
+        if(a[0] >= 4 && mThree.pieces[a[0] - 4][a[1]].type === c && mThree.pieces[a[0] - 3][a[1]].type === c && mThree.pieces[a[0] - 2][a[1]].type === c && mThree.pieces[a[0] - 1][a[1]].type === c) {
+            g.splice(g.length, 0, "5h, 4 left");
+        }
+        if(a[0] >= 3 && a[0] <= mThree.columns - 2 && mThree.pieces[a[0] - 3][a[1]].type === c && mThree.pieces[a[0] - 2][a[1]].type === c && mThree.pieces[a[0] - 1][a[1]].type === c && mThree.pieces[a[0] + 1][a[1]].type === c) {
+            g.splice(g.length, 0, "5h, 3 left 1 right");
+        }
+        if(a[0] >= 2 && a[0] <= mThree.columns - 3 && mThree.pieces[a[0] - 2][a[1]].type === c && mThree.pieces[a[0] - 1][a[1]].type === c && mThree.pieces[a[0] + 1][a[1]].type === c && mThree.pieces[a[0] + 2][a[1]].type === c) {
+            g.splice(g.length, 0, "5h, 2 left 2 right");
+        }
+        if(a[0] >= 1 && a[0] <= mThree.columns - 4 && mThree.pieces[a[0] - 1][a[1]].type === c && mThree.pieces[a[0] + 1][a[1]].type === c && mThree.pieces[a[0] + 2][a[1]].type === c && mThree.pieces[a[0] + 3][a[1]].type === c) {
+            g.splice(g.length, 0, "5h, 1 left 3 right");
+        }
+        if(a[0] <= mThree.columns - 5 && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c && mThree.pieces[a[0]][a[1] + 3].type === c && mThree.pieces[a[0]][a[1] + 4].type === c) {
+            g.splice(g.length, 0, "5h, 4 right");
+        }
+        if(a[1] >= 3 && mThree.pieces[a[0]][a[1] - 3].type === c && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c) {
+            g.splice(g.length, 0, "4v, 3 up");
+        }
+        if(a[1] >= 2 && a[1] <= mThree.rows - 2 && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c && mThree.pieces[a[0]][a[1] + 1].type === c) {
+            g.splice(g.length, 0, "4v, 2 up 1 down");
+        }
+        if(a[1] >= 1 && a[1] <= mThree.rows - 3 && mThree.pieces[a[0]][a[1] - 1].type === c && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c) {
+            g.splice(g.length, 0, "4v, 1 up 2 down");
+        }
+        if(a[1] <= mThree.rows - 4 && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c && mThree.pieces[a[0]][a[1] + 3].type === c) {
+            g.splice(g.length, 0, "4v, 3 down");
+        }
+        if(a[0] >= 3 && mThree.pieces[a[0] - 3][a[1]].type === c && mThree.pieces[a[0] - 2][a[1]].type === c && mThree.pieces[a[0] - 1][a[1]].type === c) {
+            g.splice(g.length, 0, "4h, 3 left");
+        }
+        if(a[0] >= 2 && a[0] <= mThree.columns - 2 && mThree.pieces[a[0] - 2][a[1]].type === c && mThree.pieces[a[0] - 1][a[1]].type === c && mThree.pieces[a[0] + 1][a[1]].type === c) {
+            g.splice(g.length, 0, "4h, 2 left 1 right");
+        }
+        if(a[0] >= 1 && a[0] <= mThree.columns - 3 && mThree.pieces[a[0] - 1][a[1]].type === c && mThree.pieces[a[0] + 1][a[1]].type === c && mThree.pieces[a[0] + 2][a[1]].type === c) {
+            g.splice(g.length, 0, "4h, 1 left 2 right");
+        }
+        if(a[0] <= mThree.columns - 4 && mThree.pieces[a[0] + 1][a[1]].type === c && mThree.pieces[a[0] + 2][a[1]].type === c && mThree.pieces[a[0] + 3][a[1]].type === c) {
+            g.splice(g.length, 0, "4h, 3 right");
+        }
+        if(a[1] >= 2 && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c) {
+            g.splice(g.length, 0, "3v, 2 up");
+        }
+        if(a[1] >= 1 && a[1] <= mThree.rows - 2 && mThree.pieces[a[0]][a[1] - 1].type === c && mThree.pieces[a[0]][a[1] + 1].type === c) {
+            g.splice(g.length, 0, "3v, 1 up 1 down");
+        }
+        if(a[1] <= mThree.rows - 3 && mThree.pieces[a[0]][a[1] + 1].type === c && mThree.pieces[a[0]][a[1] + 2].type === c) {
+            g.splice(g.length, 0, "3v, 2 down");
+        }
+        if(a[0] >= 2 && mThree.pieces[a[0] - 2][a[1]].type === c && mThree.pieces[a[0] - 1][a[1]].type === c) {
+            g.splice(g.length, 0, "3h, 2 left");
+        }
+        if(a[0] >= 1 && a[0] <= mThree.columns - 2 && mThree.pieces[a[0] - 1][a[1]].type === c && mThree.pieces[a[0] + 1][a[1]].type === c) {
+            g.splice(g.length, 0, "3h, 1 left 1 right");
+        }
+        if(a[0] <= mThree.columns - 3 && mThree.pieces[a[0] + 1][a[1]].type === c && mThree.pieces[a[0] + 2][a[1]].type === c) {
+            g.splice(g.length, 0, "3h, 2 right");
+        }
+        return ((g.length > 0) ? g : false);
     },
     makeMatch(a, b, c) { // Function that will switch tile a and tile b, and will handle the resulting match
         // a (required) = Array of location of tile a
         // b (required) = Array of location of tile b
         // c (optional, but recommended) = Type of match that will be made
-        mThree.data[mThree.pieces[a[0]][a[1]].type][3]();
+        mThree.data[mThree.pieces[b[0]][b[1]].type][2]();
         mThree.selected = -1;
     },
     piece: function(a) { // Function to create piece object
@@ -128,8 +153,29 @@ var mThree = {
             var a = mThree.getMousePos(document.querySelector("#mThree"), e);
             var b = ((a.x / (mThree.tileSize + mThree.tileSpacing)) >> 0);
             var c = ((a.y / (mThree.tileSize + mThree.tileSpacing)) >> 0);
-            if(mThree.selected !== -1 && !(mThree.selected[0] === b && mThree.selected[1] === c) && mThree.checkForMatch([b, c])) {
-                mThree.makeMatch([b, c], mThree.selected, mThree.checkForMatch([b, c]));
+            var d;
+            if(b + 1 === mThree.selected[0] && c === mThree.selected[1]) {
+                d = "right";
+            }else if(b - 1 === mThree.selected[0] && c === mThree.selected[1]) {
+                d = "left";
+            }else if(b === mThree.selected[0] && c + 1 === mThree.selected[1]) {
+                d = "down";
+            }else if(b === mThree.selected[0] && c - 1 === mThree.selected[1]) {
+                d = "up";
+            }else{
+                d = false;
+            }
+            if(mThree.selected[0] === b && mThree.selected[1] === c) {
+                mThree.selected = -1;
+            }else if(mThree.selected !== -1 && d !== false) {
+                var g = mThree.checkForMatch([b, c], mThree.selected, mThree.pieces[mThree.selected[0]][mThree.selected[1]].type, d);
+                if(g !== false) {
+                    for(var f = 0; f < g.length; f++) {
+                        mThree.makeMatch([b, c], mThree.selected, g[f]);
+                    }
+                }else{
+                    mThree.selected = -1;
+                }
             }else{
                 mThree.selected = [b, c];
             }
@@ -165,7 +211,7 @@ var mThree = {
                         b.lineTo(g + (mThree.tileSize / 2), h);
                         b.closePath();
                         b.save();
-                        b.lineWidth = Math.floor(mThree.tileSpacing / 2.5);
+                        b.lineWidth = Math.floor(mThree.tileSpacing / 2);
                         b.strokeStyle = "rgba(0, 0, 0, 0.5)";
                         b.stroke();
                         b.restore();
