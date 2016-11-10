@@ -1,29 +1,34 @@
 var mThree = {
+    selector: document.querySelector("#mThree"),
     rows: 5,
     columns: 5,
     tileSize: 100,
     tileSpacing: 5,
     ended: true,
+    pieces: [],
     types: ["type1", "type2", "type3", "type4", "type5"],
     data: { // Data for all the types of tiles ["Name", "URL", (match function)]
         type1: ["Type 1", "img/type1.png", function() {
-            alert(mThree.data.type1[0] + "!");
+            alert(mThree.data.type1[0] + " matched!");
         }],
         type2: ["Type 2", "img/type2.png", function() {
-            alert(mThree.data.type2[0] + "!");
+            alert(mThree.data.type2[0] + " matched!");
         }],
         type3: ["Type 3", "img/type3.png", function() {
-            alert(mThree.data.type3[0] + "!");
+            alert(mThree.data.type3[0] + " matched!");
         }],
         type4: ["Type 4", "img/type4.png", function() {
-            alert(mThree.data.type4[0] + "!");
+            alert(mThree.data.type4[0] + " matched!");
         }],
         type5: ["Type 5", "img/type5.png", function() {
-            alert(mThree.data.type5[0] + "!");
+            alert(mThree.data.type5[0] + " matched!");
         }]
     },
+    effects: [],
     selected: -1,
-    pieces: [],
+    canSelect: true,
+    selectedStyle: "rgb(0, 0, 0, 0.5d)",
+    lastUpdateTime: 0,
     getMousePos: function(a, b) { // Function to get mouse's location on canvas
         // a (required) = Canvas to get mouse position on
         // b (required) = The click event itself
@@ -33,11 +38,41 @@ var mThree = {
           y: b.clientY - c.top
         };
     },
-    checkForMatch: function(a, b, c, d) { // Function that will check if there is a match, returns a string or false
+    piece: function(a) { // Function to create piece object
+        // a (optional) = Spawn in a piece of a certain type
+        if(a && typeof a === "string") {
+            this.type = a;
+        }else{
+            var d = Math.round(Math.random() * ((mThree.types).length - 1));
+            this.type = mThree.types[d];
+        }
+        this.name = mThree.data[this.type][0];
+        this.img = document.createElement("img");
+        (this.img).src = mThree.data[this.type][1];
+    },
+    effect: function(a, b, c, d) {
+        this.type = a;
+        this.data = b;
+        this.time = [0, c];
+        this.onComplete = d;
+    },
+    checkForNeighbor: function(a, b) {
+        if(a[0] + 1 === b[0] && a[1] === b[1]) {
+            return "right";
+        }else if(a[0] - 1 === b[0] && a[1] === b[1]) {
+            return "left";
+        }else if(a[0] === b[0] && a[1] + 1 === b[1]) {
+            return "down";
+        }else if(a[0] === b[0] && a[1] - 1 === b[1]) {
+            return "up";
+        }else{
+            return false;
+        }
+    },
+    checkForMatch: function(a, b, c) { // Function that will check if there is a match, returns a string or false
         // a (required) = Piece #1 location
         // b (required) = Piece #2 location
         // c (required) = Type of match to check for
-        // d (required) = Type of switch made
         var g = [];
         if(a[1] >= 4 && mThree.pieces[a[0]][a[1] - 4].type === c && mThree.pieces[a[0]][a[1] - 3].type === c && mThree.pieces[a[0]][a[1] - 2].type === c && mThree.pieces[a[0]][a[1] - 1].type === c) {
             g.splice(g.length, 0, "5v, 4 up");
@@ -120,17 +155,55 @@ var mThree = {
         mThree.data[mThree.pieces[b[0]][b[1]].type][2]();
         mThree.selected = -1;
     },
-    piece: function(a) { // Function to create piece object
-        // a (optional) = Spawn in a piece of a certain type
-        if(a && typeof a === "string") {
-            this.type = a;
-        }else{
-            var d = Math.round(Math.random() * ((mThree.types).length - 1));
-            this.type = mThree.types[d];
+    click: function(e) {
+        if(mThree.canSelect) {
+            e = e || window.event;
+            var a = mThree.getMousePos(mThree.selector, e);
+            var b = ((a.x / (mThree.tileSize + mThree.tileSpacing)) >> 0);
+            var c = ((a.y / (mThree.tileSize + mThree.tileSpacing)) >> 0);
+            var d = mThree.checkForNeighbor([b, c], mThree.selected);
+            var f = mThree.checkForNeighbor(mThree.selected, [b, c]);
+            if(mThree.selected[0] === b && mThree.selected[1] === c) {
+                mThree.selected = -1;
+            }else if(mThree.selected !== -1 && d !== false) {
+                mThree.canSelect = false;
+                var i = new mThree.effect("switch", [[b, c], mThree.selected, d], 500, function() {
+                    for(var a = 0; a < (mThree.effects).length; a++) {
+                        if(mThree.effects[a].type === "switch") {
+                            break;
+                        }
+                    }
+                    var b = mThree.effects[a];
+                    var c = mThree.checkForNeighbor(b.data[0], b.data[1]);
+                    var d = mThree.checkForNeighbor(b.data[1], b.data[0]);
+                    var f = mThree.checkForMatch(b.data[0], b.data[1], mThree.pieces[b.data[1][0]][b.data[1][1]].type, c);
+                    var g = mThree.checkForMatch(b.data[1], b.data[0], mThree.pieces[b.data[0][0]][b.data[0][1]].type, d);
+                    if(f !== false || g !== false) {
+                        if(f !== false) {
+                            for(var h = 0; h < f.length; h++) {
+                                mThree.makeMatch(b.data[0], b.data[1], f[h]);
+                            }
+                        }
+                        if(g !== false) {
+                            for(var i = 0; i < g.length; i++) {
+                                mThree.makeMatch(b.data[1], b.data[0], g[i]);
+                            }
+                        }
+                    }else{
+                        var j = new mThree.effect("switchBack", b.data, 500, function() {
+                            mThree.canSelect = true;
+                        });
+                        (mThree.effects).splice((mThree.effects).length, 0, j);
+                    }
+                });
+                (mThree.effects).splice((mThree.effects).length, 0, i);
+                mThree.selected = -1;
+            }else if(mThree.selected !== -1) {
+                mThree.selected = -1;
+            }else{
+                mThree.selected = [b, c];
+            }
         }
-        this.name = mThree.data[this.type][0];
-        this.img = document.createElement("img");
-        (this.img).src = mThree.data[this.type][1];
     },
     create: function(a, b) { // Creates a new match-3
         // a (required) = Number of columns match-3 has
@@ -146,106 +219,94 @@ var mThree = {
         mThree.start();
     },
     start: function() { // Starts the match-3 (starts update loop)
-        var a = document.querySelector("#mThree");
-        a.width = (mThree.tileSize * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1));
-        a.height = (mThree.tileSize * mThree.rows) + (mThree.tileSpacing * (mThree.rows + 1));
-        a.addEventListener("click", function(e) {
-            var a = mThree.getMousePos(document.querySelector("#mThree"), e);
-            var b = ((a.x / (mThree.tileSize + mThree.tileSpacing)) >> 0);
-            var c = ((a.y / (mThree.tileSize + mThree.tileSpacing)) >> 0);
-            var d;
-            if(b + 1 === mThree.selected[0] && c === mThree.selected[1]) {
-                d = "right";
-            }else if(b - 1 === mThree.selected[0] && c === mThree.selected[1]) {
-                d = "left";
-            }else if(b === mThree.selected[0] && c + 1 === mThree.selected[1]) {
-                d = "down";
-            }else if(b === mThree.selected[0] && c - 1 === mThree.selected[1]) {
-                d = "up";
-            }else{
-                d = false;
-            }
-            if(mThree.selected[0] === b && mThree.selected[1] === c) {
-                mThree.selected = -1;
-            }else if(mThree.selected !== -1 && d !== false) {
-                var g = mThree.checkForMatch([b, c], mThree.selected, mThree.pieces[mThree.selected[0]][mThree.selected[1]].type, d);
-                if(g !== false) {
-                    for(var f = 0; f < g.length; f++) {
-                        mThree.makeMatch([b, c], mThree.selected, g[f]);
-                    }
-                }else{
-                    mThree.selected = -1;
-                }
-            }else{
-                mThree.selected = [b, c];
-            }
+        (mThree.selector).width = (mThree.tileSize * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1));
+        (mThree.selector).height = (mThree.tileSize * mThree.rows) + (mThree.tileSpacing * (mThree.rows + 1));
+        (mThree.selector).addEventListener("click", function(e) {
+            mThree.click(e);
         });
         mThree.ended = false;
         mThree.update();
     },
     update: function() { // Updates match-3 as game is played and ends game
-        // Will loop using window.requestAnimationFrame until game is run and then will call mThree.end();
-        var a = document.querySelector("#mThree");
-        var b = a.getContext("2d");
+        var a = Date.now();
+        var b = a - mThree.lastUpdateTime;
+        mThree.lastUpdateTime = a;
+        var c = (mThree.selector).getContext("2d");
         if(!mThree.ended) {
-            b.clearRect(0, 0, a.width, a.height);
-            b.strokeRect(0, 0, a.width, a.height);
-            var f, g, h;
-            for(var c = 0; c < (mThree.pieces).length; c++) {
-                for(var d = 0; d < (mThree.pieces[c]).length; d++) {
-                    f = mThree.pieces[c];
-                    g = ((c * mThree.tileSize) + ((c + 1) * mThree.tileSpacing));
-                    h = ((d * mThree.tileSize) + ((d + 1) * mThree.tileSpacing));
-                    b.drawImage(mThree.pieces[c][d].img, g, h);
-                    if(Array.isArray(mThree.selected) && mThree.selected[0] === c && mThree.selected[1] === d) {
-                        b.beginPath();
-                        b.moveTo(g + (mThree.tileSize / 2), h);
-                        b.lineTo((g + mThree.tileSize) - mThree.tileSpacing, h);
-                        b.quadraticCurveTo(g + mThree.tileSize, h, g + mThree.tileSize, h + mThree.tileSpacing);
-                        b.lineTo(g + mThree.tileSize, (h + mThree.tileSize) - mThree.tileSpacing);
-                        b.quadraticCurveTo(g + mThree.tileSize, h + mThree.tileSize, (g + mThree.tileSize) - mThree.tileSpacing, h + mThree.tileSize);
-                        b.lineTo(g + mThree.tileSpacing, h + mThree.tileSize);
-                        b.quadraticCurveTo(g, h + mThree.tileSize, g, (h + mThree.tileSize) - mThree.tileSpacing);
-                        b.lineTo(g, h + mThree.tileSpacing);
-                        b.quadraticCurveTo(g, h, g + mThree.tileSpacing, h);
-                        b.lineTo(g + (mThree.tileSize / 2), h);
-                        b.closePath();
-                        b.save();
-                        b.lineWidth = Math.floor(mThree.tileSpacing / 2);
-                        b.strokeStyle = "rgba(0, 0, 0, 0.5)";
-                        b.stroke();
-                        b.restore();
+            c.clearRect(0, 0, (mThree.selector).width, (mThree.selector).height);
+            c.strokeRect(0, 0, (mThree.selector).width, (mThree.selector).height);
+            var g, h;
+            for(var d = 0; d < (mThree.pieces).length; d++) {
+                for(var f = 0; f < (mThree.pieces[d]).length; f++) {
+                    g = ((d * mThree.tileSize) + ((d + 1) * mThree.tileSpacing));
+                    h = ((f * mThree.tileSize) + ((f + 1) * mThree.tileSpacing));
+                    c.drawImage(mThree.pieces[d][f].img, g, h);
+                    if(Array.isArray(mThree.selected) && mThree.selected[0] === d && mThree.selected[1] === f) {
+                        c.beginPath();
+                        c.moveTo(g + (mThree.tileSize / 2), h);
+                        c.lineTo((g + mThree.tileSize) - mThree.tileSpacing, h);
+                        c.quadraticCurveTo(g + mThree.tileSize, h, g + mThree.tileSize, h + mThree.tileSpacing);
+                        c.lineTo(g + mThree.tileSize, (h + mThree.tileSize) - mThree.tileSpacing);
+                        c.quadraticCurveTo(g + mThree.tileSize, h + mThree.tileSize, (g + mThree.tileSize) - mThree.tileSpacing, h + mThree.tileSize);
+                        c.lineTo(g + mThree.tileSpacing, h + mThree.tileSize);
+                        c.quadraticCurveTo(g, h + mThree.tileSize, g, (h + mThree.tileSize) - mThree.tileSpacing);
+                        c.lineTo(g, h + mThree.tileSpacing);
+                        c.quadraticCurveTo(g, h, g + mThree.tileSpacing, h);
+                        c.lineTo(g + (mThree.tileSize / 2), h);
+                        c.closePath();
+                        c.save();
+                        c.lineWidth = Math.floor(mThree.tileSpacing / 2);
+                        c.strokeStyle = mThree.selectedStyle;
+                        c.stroke();
+                        c.restore();
                     }
                 }
             }
-            /*for(var c = 0; c < (mThree.pieces).length; c++) {
-                d = mThree.pieces[c];
-                f = (((d.spot[0] - 1) * mThree.tileSize) + (d.spot[0] * mThree.tileSpacing));
-                g = (((d.spot[1] - 1) * mThree.tileSize) + (d.spot[1] * mThree.tileSpacing));
-                b.drawImage(d.img, f, g);
-                if(c === mThree.selected) {
-                    b.beginPath();
-                    b.moveTo(f + (mThree.tileSize / 2), g);
-                    b.lineTo((f + mThree.tileSize) - mThree.tileSpacing, g);
-                    b.quadraticCurveTo(f + mThree.tileSize, g, f + mThree.tileSize, g + mThree.tileSpacing);
-                    b.lineTo(f + mThree.tileSize, (g + mThree.tileSize) - mThree.tileSpacing);
-                    b.quadraticCurveTo(f + mThree.tileSize, g + mThree.tileSize, (f + mThree.tileSize) - mThree.tileSpacing, g + mThree.tileSize);
-                    b.lineTo(f + mThree.tileSpacing, g + mThree.tileSize);
-                    b.quadraticCurveTo(f, g + mThree.tileSize, f, (g + mThree.tileSize) - mThree.tileSpacing);
-                    b.lineTo(f, g + mThree.tileSpacing);
-                    b.quadraticCurveTo(f, g, f + mThree.tileSpacing, g);
-                    b.lineTo(f + (mThree.tileSize / 2), g);
-                    b.closePath();
-                    b.save();
-                    b.lineWidth = Math.floor(mThree.tileSpacing / 2.5);
-                    b.strokeStyle = "rgba(0, 0, 0, 0.5)";
-                    b.stroke();
-                    b.restore();
+            var j, k, l, m;
+            for(var i = 0; i < (mThree.effects).length; i++) {
+                if(mThree.effects[i].type === "switch") {
+                    j = mThree.effects[i];
+                    j.time[0] += b;
+                    if(j.time[0] < j.time[1]) {
+                        k = [((j.data[0][0] * mThree.tileSize) + ((j.data[0][0] + 1) * mThree.tileSpacing)), ((j.data[0][1] * mThree.tileSize) + ((j.data[0][1] + 1) * mThree.tileSpacing))];
+                        l = [((j.data[1][0] * mThree.tileSize) + ((j.data[0][1] + 1) * mThree.tileSpacing)), ((j.data[1][1] * mThree.tileSize) + ((j.data[1][1] + 1) * mThree.tileSpacing))];
+                        c.clearRect(k[0], k[1], mThree.tileSize + mThree.tileSpacing, mThree.tileSize + mThree.tileSpacing);
+                        c.clearRect(l[0], l[1], mThree.tileSize + mThree.tileSpacing, mThree.tileSize + mThree.tileSpacing);
+                        //m = (mThree.tileSize + mThree.tileSpacing) * (j.time[0] / j.time[1]);
+                        //m *= (("") ? "" : "");
+                        //c.drawImage(mThree.pieces[j.data[1][0]][j.data[1][1]].img, k[1], l[1]); // Animating here
+                        //c.drawImage(mThree.pieces[j.data[0][0]][j.data[0][1]].img, k[0], l[0]); // Animating here
+                    }else{
+                        j.onComplete();
+                        for(var n = 0; n < (mThree.effects).length; n++) {
+                            if(mThree.effects[n].type === "switch") {
+                                break;
+                            }
+                        }
+                        (mThree.effects).splice(n, 1);
+                    }
+                }else if(mThree.effects[i].type === "switchBack") {
+                    j = mThree.effects[i];
+                    j.time[0] += b;
+                    if(j.time[0] < j.time[1]) {
+                        k = [((j.data[0][0] * mThree.tileSize) + ((j.data[0][0] + 1) * mThree.tileSpacing)), ((j.data[0][1] * mThree.tileSize) + ((j.data[0][1] + 1) * mThree.tileSpacing))];
+                        l = [((j.data[1][0] * mThree.tileSize) + ((j.data[0][1] + 1) * mThree.tileSpacing)), ((j.data[1][1] * mThree.tileSize) + ((j.data[1][1] + 1) * mThree.tileSpacing))];
+                        c.clearRect(k[0], k[1], mThree.tileSize + mThree.tileSpacing, mThree.tileSize + mThree.tileSpacing);
+                        c.clearRect(l[0], l[1], mThree.tileSize + mThree.tileSpacing, mThree.tileSize + mThree.tileSpacing);
+                    }else{
+                        j.onComplete();
+                        for(var o = 0; o < (mThree.effects).length; o++) {
+                            if(mThree.effects[o].type === "switchBack") {
+                                break;
+                            }
+                        }
+                        (mThree.effects).splice(o, 1);
+                    }
                 }
-            }*/
+            }
             window.requestAnimationFrame(mThree.update);
         }else{
-            a.clearRect(0, 0, a.width, a.height);
+            c.clearRect(0, 0, (mThree.selector).width, (mThree.selector).height);
         }
     }
 };
