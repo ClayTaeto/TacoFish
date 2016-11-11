@@ -1,333 +1,73 @@
 window.onerror = function(error, url, line) {
-    alert(error + ". (Line " + line + ")");
+    alert(error + " (Line " + line + ")");
 };
 var mThree = {
-    initiated: [false, false],
-    selector: document.querySelector("#mThree"),
-    rows: 5,
-    columns: 5,
-    tileSize: [100, 100],
-    tileSpaceing: 5,
-    color: {
-        background: "rgb(255, 255, 255)",
-        outline: "rgba(0, 0, 0, 0.5)"
-    },
-    types: ["type1", "type2", "type3", "type4", "type5"],
-    typeData: {
-        type1: ["Type 1", "img/type1.png", function() {
-            alert(mThree.typeData.type1[0] + " match made!");
-        }],
-        type2: ["Type 2", "img/type2.png", function() {
-            alert(mThree.typeData.type2[0] + " match made!");
-        }],
-        type3: ["Type 3", "img/type3.png", function() {
-            alert(mThree.typeData.type3[0] + " match made!");
-        }],
-        type4: ["Type 4", "img/type4.png", function() {
-            alert(mThree.typeData.type4[0] + " match made!");
-        }],
-        type5: ["Type 5", "img/type5.png", function() {
-            alert(mThree.typeData.type5[0] + " match made!");
-        }]
-    },
-    tiles: [],
-    moves: [],
-    clusters: [],
-    gameState: 0,
-    gameover: false,
-    lastFrame: Date.now(),
+    canvas: document.getElementById("mThree"),
+    context: document.getElementById("mThree").getContext("2d"),
+    lastFrame: 0,
     dragging: false,
-    selected: false,
-    currentMove: {},
+    level: {
+        columns: 5,
+        rows: 5,
+        tileWidth: 100,
+        tileHeight: 100,
+        tileSpacing: 5,
+        tiles: [],
+        selected: false
+    },
+    tilecolors: [[255, 128, 128],
+                [128, 255, 128],
+                [128, 128, 255],
+                [255, 255, 128],
+                [255, 128, 255],
+                [128, 255, 255],
+                [255, 255, 255]],
+    clusters: [],
+    moves: [],
+    currentMove: {column1: 0, row1: 0, column2: 0, row2: 0},
+    gameState: 0,
+    score: 0,
     animation: {
         state: 0,
         time: 0,
         total: 0.3
     },
-    getMousePos: function(a, b) {
-        var c = a.getBoundingClientRect();
-        return {
-          x: b.clientX - c.left,
-          y: b.clientY - c.top
-        };
-    },
-    getMouseTile: function(a) {
-        var b = Math.floor((a.x - ((mThree.tileSize[0] * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1)))) / mThree.tileSize[0]);
-        var c = Math.floor((a.y - ((mThree.tileSize[1] * mThree.rows) + (mThree.tileSpacing * (mThree.rows + 1)))) / mThree.tileSize[1]);
-        if(b >= 0 && b < mThree.columns && c >= 0 && c < mThree.rows) {
-            return {valid: true, x: b, y: c};
-        }else{
-            return {valid: false, x: 0, y: 0};
-        }
-    },
-    getTileCoordinate: function(a, b, c, d) {
-        var f = ((mThree.tileSize[0] * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1))) + (a + c) * mThree.tileSize[0];
-        var g = ((mThree.tileSize[1] * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1))) + (b + d) * mThree.tileSize[1];
-        return {tilex: f, tiley: g};
-    },
-    mouse: {
-        move: function(e) {
-            var a = mThree.getMousePos(mThree.selector, e);
-            if(mThree.dragging && mThree.selected !== false) {
-                var b = mThree.getMouseTile(a);
-                if(b.valid) {
-                    if(mThree.canSwap(b.x, b.y, mThree.selected[0], mThree.selected[1])) {
-                        mThree.mouseSwap(b.x, b.y, mThree.selected[0], mThree.selected[1]);
-                    }
-                }
-            }
-        },
-        down: function(e) {
-            var a = mThree.getMousePos(mThree.selector, e);
-            if(!mThree.dragging) {
-                var b = mThree.getMouseTile(a);
-                if(b.valid) {
-                    var c = false;
-                    if(mThree.selected !== false) {
-                        if(b.x === mThree.selected[0] && b.y === mThree.selected[1]) {
-                            mThree.selected = false;
-                            mThree.dragging = true;
-                            return false;
-                        }else if(mThree.canSwap(b.x, b.y, mThree.selected[0], mThree.selected[1])) {
-                            mThree.mouseSwap(b.x, b.y, mThree.selected[0], mThree.selected[1]);
-                            c = true;
-                        }
-                    }
-                    if(!c) {
-                        mThree.selected = [b.x, b.y];
-                    }
-                }else{
-                    mThree.selected = false;
-                }
-                mThree.dragging = true;
-            }
-        },
-        up: function() {
-            mThree.dragging = false;
-        },
-        out: function() {
-            mThree.dragging = false;
-        }
-    },
-    getRandomType: function() {
-        return mThree.types[Math.round(Math.random() * ((mThree.types).length - 1))];
-    },
-    findClusters: function() {
-        mThree.clusters = [];
-        for(var a = 0; a < mThree.rows; a++) {
-            var b = 1;
-            for(var c = 0; c < mThree.columns; c++) {
-                var d = false;
-                if(c === mThree.columns - 1) {
-                    d = true;
-                }else{
-                    if(mThree.tiles[c][a].type === mThree.tiles[c + 1][a].type && mThree.tiles[c][a].type !== -1) {
-                        b += 1;
-                    }else{
-                        d = true;
-                    }
-                }
-                if(d) {
-                    if(b >= 3) {
-                        (mThree.clusters).splice((mThree.clusters).length, 0, {column: c + 1 - b, row: a, length: b, horizontal: true});
-                    }
-                    b = 1;
-                }
-            }
-        }
-        for(var g = 0; g < mThree.columns; g++) {
-            var h = 1;
-            for(var i = 0; i < mThree.rows; i++) {
-                var j = false;
-                if(i === mThree.rows - 1) {
-                    j = true;
-                }else{
-                    if(mThree.tiles[g][i].type === mThree.tiles[g][i + 1].type && mThree.tiles[g][i].type !== -1) {
-                        h += 1;
-                    }else{
-                        j = true;
-                    }
-                }
-                if(j) {
-                    if(h >= 3) {
-                        (mThree.clusters).splice((mThree.clusters).length, 0, {column: g, row: i + 1 - h, length: h, horizontal: false});
-                    }
-                    h = 1;
-                }
-            }
-        }
-    },
-    loopClusters: function(a, b) {
-        for(var c = 0; c < (mThree.clusters).length; c++) {
-            var d = mThree.clusters[c];
-            var f = 0;
-            var g = 0;
-            var h = mThree.tiles[d.column][d.row].type;
-            for(var i = 0; i < (d.length); i++) {
-                a(c, d.column + f, d.row + g, d);
-                if(d.horizontal) {
-                    f++;
-                }else{
-                    g++;
-                }
-            }
-            if(b && b === "remove" && mThree.initiated[1]) {
-                mThree.typeData[h][2]();
-            }
-        }
-    },
-    removeClusters: function() {
-        mThree.loopClusters(function(a, b, c, d) {
-            mThree.tiles[b][c].type = -1;
-        }, "remove");
-        for(var a = 0; a < mThree.columns; a++) {
-            var b = 0;
-            for(var c = mThree.rows - 1; c >= 0; c--) {
-                if(mThree.tiles[a][c].type === -1) {
-                    b++;
-                    mThree.tiles[a][c].shift = 0;
-                }else{
-                    mThree.tiles[a][c].shift = b;
-                }
-            }
-        }
-    },
-    resolveClusters: function() {
-        mThree.findClusters();
-        while((mThree.clusters).length > 0) {
-            mThree.removeClusters();
-            mThree.shiftTiles();
-            mThree.findClusters();
-        }
-    },
-    shiftTiles: function() {
-        for(var a = 0; a < mThree.columns; a++) {
-            for(var b = mThree.rows - 1; b >= 0; b--) {
-                if(mThree.tiles[a][b].type === -1) {
-                    mThree.tiles[a][b].type = mThree.getRandomType();
-                }else{
-                    var c = mThree.tiles[a][b].shift;
-                    if(c > 0) {
-                        mThree.swap(a, b, a, b + c);
-                    }
-                }
-                mThree.tiles[a][b].shift = 0;
-            }
-        }
-    },
-    swap: function(a, b, c, d) {
-        var f = mThree.tiles[a][b].type;
-        mThree.tiles[a][b].type = mThree.tiles[c][d].type;
-        mThree.tiles[c][d].type = f;
-    },
-    canSwap: function(a, b, c, d) {
-        if((Math.abs(a - c) === 1 && b === d) || (Math.abs(b - d) === 1 && a === c)) {
-            return true;
-        }else{
-            return false;
-        }
-    },
-    mouseSwap: function(a, b, c, d) {
-        mThree.currentMove = {column1: a, row1: b, column2: c, row2: d};
-        mThree.selected = false;
-        mThree.animation.state = 2;
-        mThree.animation.time = 0;
-        mThree.gameState = 2;
-    },
-    findMoves: function() {
-        mThree.moves = [];
-        for(var a = 0; a < mThree.rows; a++) {
-            for(var b = 0; b < mThree.columns - 1; b++) {
-                mThree.swap(b, a, b + 1, a);
-                mThree.findClusters();
-                mThree.swap(b, a, b + 1, a);
-                if((mThree.clusters).length > 0) {
-                    (mThree.moves).splice((mThree.moves).length, 0, {column1: b, row1: a, column2: b + 1, row2: a});
-                }
-            }
-        }
-        for(var c = 0; c < mThree.columns; c++) {
-            for(var d = 0; d < mThree.rows - 1; d++) {
-                mThree.swap(c, d, c, d + 1);
-                mThree.findClusters();
-                mThree.swap(c, d, c, d + 1);
-                if((mThree.clusters).length > 0) {
-                    (mThree.moves).splice((mThree.moves).length, 0, {column1: c, row1: d, column2: c, row2: d + 1});
-                }
-            }
-        }
-        mThree.clusters = [];
-    },
+    gameEnded: false,
     init: function() {
-        if(!mThree.initiated[0]) {
-            mThree.initiated[0] = true;
-            (mThree.selector).addEventListener("mousemove", mThree.mouse.move);
-            (mThree.selector).addEventListener("mousedown", mThree.mouse.down);
-            (mThree.selector).addEventListener("mouseup", mThree.mouse.up);
-            (mThree.selector).addEventListener("mouseout", mThree.mouse.out);
-        }
-        (mThree.selector).width = (mThree.tileSize * mThree.columns) + (mThree.tileSpacing * (mThree.columns + 1));
-        (mThree.selector).height = (mThree.tileSize * mThree.rows) + (mThree.tileSpacing * (mThree.rows + 1));
-        mThree.tiles = [];
-        for(var a = 0; a < mThree.columns; a++) {
-            mThree.tiles[a] = [];
-            for(var b = 0; b < mThree.rows; b++) {
-                mThree.tiles[a][b] = {
-                    type: 0,
-                    img: document.createElement("img"),
-                    shift: 0
-                };
+        (mThree.canvas).addEventListener("mousemove", mThree.mouse.move);
+        (mThree.canvas).addEventListener("mousedown", mThree.mouse.down);
+        (mThree.canvas).addEventListener("mouseup", mThree.mouse.up);
+        (mThree.canvas).addEventListener("mouseout", mThree.mouse.out);
+        for(var i = 0; i < mThree.level.columns; i++) {
+            mThree.level.tiles[i] = [];
+            for(var j = 0; j < mThree.level.rows; j++) {
+                mThree.level.tiles[i][j] = {type: 0, shift: 0};
             }
         }
-        mThree.gameState = 1;
-        mThree.gameover = false;
-        mThree.create();
-        mThree.findMoves();
-        mThree.findClusters();
+        mThree.newGame();
         mThree.main(0);
     },
-    create: function() {
-        var a = false;
-        while(!a) {
-            for(var b = 0; b < mThree.columns; b++) {
-                for(var c = 0; c < mThree.rows; c++) {
-                    mThree.tiles[b][c].type = mThree.getRandomType();
-                    (mThree.tiles[b][c].img).src = mThree.typeData[mThree.tiles[b][c].type][1];
-                }
-            }
-            mThree.resolveClusters();
-            mThree.findMoves();
-            if((mThree.moves).length > 0) {
-                a = true;
-            }
-        }
+    main: function(tframe) {
+        mThree.update(tframe);
+        mThree.render();
+        window.requestAnimationFrame(mThree.main);
     },
-    main: function(a) {
-        if(!mThree.initiated[1]) {
-            mThree.initiated[1] = true;
-        }
-        if(!mThree.gameover) {
-            mThree.update(a);
-            mThree.render();
-            window.requestAnimationFrame(mThree.main);
-        }else{
-            ((mThree.selector).getContext("2d")).clearRect(0, 0, (mThree.selector).width, (mThree.selector).height);
-        }
-    },
-    update: function(a) {
-        var b = (a - mThree.lastFrame) / 1000;
-        mThree.lastframe = a;
+    update: function(tframe) {
+        var dt = (tframe - mThree.lastFrame) / 1000;
+        mThree.lastFrame = tframe;
         if(mThree.gameState === 1) {
             if((mThree.moves).length <= 0) {
-                alert("No matches left, reshuffling now.");
-                mThree.create();
+                mThree.newGame(mThree.score);
             }
         }else if(mThree.gameState === 2) {
-            mThree.animation.time += b;
+            mThree.animation.time += dt;
             if(mThree.animation.state === 0) {
                 if(mThree.animation.time > mThree.animation.total) {
                     mThree.findClusters();
                     if((mThree.clusters).length > 0) {
+                        for(var i = 0; i < (mThree.clusters).length; i++) {
+                            mThree.score += 10 * (mThree.clusters[i].length - 2);
+                        }
                         mThree.removeClusters();
                         mThree.animation.state = 1;
                     }else{
@@ -371,66 +111,305 @@ var mThree = {
         }
     },
     render: function() {
-        var a = mThree.selector;
-        var b = a.getContext("2d");
-        b.save();
-        b.fillStyle = mThree.color.background;
-        b.fillRect(0, 0, a.width, a.height);
-        b.restore();
-        for(var c = 0; c < mThree.columns; c++) {
-            for(var d = 0; d < mThree.rows; d++) {
-                var f = mThree.tiles[c][d].shift;
-                var g = mThree.getTileCoordinate(c, d, 0, (mThree.animation.time / mThree.animation.total) * f);
-                if(mThree.tiles[c][d].type !== -1) {
-                    b.drawImage(mThree.tiles[c][d].img, g.tilex, g.tiley);
+        (mThree.context).clearRect(0, 0, (mThree.canvas).width, (mThree.canvas).height);
+        mThree.renderTiles();
+        mThree.renderClusters();
+        if(mThree.gameEnded) {
+            (mThree.context).fillStyle = "rgba(0, 0, 0, 0.8)";
+            (mThree.context).fillRect(mThree.level.tileSpacing, mThree.level.tileSpacing, mThree.level.columns * mThree.level.tileWidth, mThree.level.rows * mThree.level.tileHeight);
+            (mThree.context).fillStyle = "#ffffff";
+            (mThree.context).font = "24px Verdana";
+            var textdim = (mThree.context).measureText("Game Ended!");
+            (mThree.context).fillText("Game Ended!", mThree.level.tileSpacing + ((mThree.level.columns * mThree.level.tileWidth) - textdim.width) / 2, mThree.tileSpacing);
+        }
+    },
+    renderTiles: function() {
+        for(var i = 0; i < mThree.level.columns; i++) {
+            for(var j = 0; j < mThree.level.rows; j++) {
+                var shift = mThree.level.tiles[i][j].shift;
+                var coord = mThree.getTileCoordinate(i, j, 0, (mThree.animation.time / mThree.animation.total) * shift);
+                if(mThree.level.tiles[i][j].type >= 0) {
+                    var col = mThree.tilecolors[mThree.level.tiles[i][j].type];
+                    mThree.drawTile(coord.tilex, coord.tiley, col[0], col[1], col[2]);
                 }
-                if(mThree.selected !== false && mThree.selected[0] === c && mThree.selected[1] === d) {
-                    b.beginPath();
-                    b.moveTo(g.tilex + (mThree.tileSize[0] / 2), g.tiley);
-                    b.lineTo((g.tilex + mThree.tileSize[0]) - mThree.tileSpacing, g.tiley);
-                    b.quadraticCurveTo(g.tilex + mThree.tileSize[0], g.tiley, g.tilex + mThree.tileSize[0], g.tiley + mThree.tileSpacing);
-                    b.lineTo(g.tilex + mThree.tileSize[0], (g.tiley + mThree.tileSize[1]) - mThree.tileSpacing);
-                    b.quadraticCurveTo(g.tilex + mThree.tileSize[0], g.tiley + mThree.tileSize[1], (g.tilex + mThree.tileSize[0]) - mThree.tileSpacing, g.tiley + mThree.tileSize[1]);
-                    b.lineTo(g.tilex + mThree.tileSpacing, g.tiley + mThree.tileSize);
-                    b.quadraticCurveTo(g.tilex, g.tiley + mThree.tileSize[1], g.tilex, (g.tiley + mThree.tileSize[1]) - mThree.tileSpacing);
-                    b.lineTo(g.tilex, g.tiley + mThree.tileSpacing);
-                    b.quadraticCurveTo(g.tilex, g.tiley, g.tilex + mThree.tileSpacing, g.tiley);
-                    b.lineTo(g.tilex + (mThree.tileSize[0] / 2), g.tiley);
-                    b.closePath();
-                    b.save();
-                    b.lineWidth = Math.floor(mThree.tileSpacing / 2);
-                    b.strokeStyle = mThree.color.outline;
-                    b.stroke();
-                    b.restore();
+                if(mThree.level.selected !== false) {
+                    if(mThree.level.selected[0] === i && mThree.level.selected[1] === j) {
+                        mThree.drawTile(coord.tilex, coord.tiley, 255, 0, 0);
+                    }
                 }
             }
         }
-        if(mThree.gamestate === 2 && (mThree.animation.state === 2 || mThree.animation.state === 3)) {
-            var h = mThree.currentMove.column2 - mThree.currentMove.column1;
-            var i = mThree.currentMove.row2 - mThree.currentMove.row1;
-            var j = mThree.getTileCoordinate(mThree.currentMove.column1, mThree.currentMove.row1, (mThree.animation.time / mThree.animation.total) * h, (mThree.animation.time / mThree.animation.total) * i);
-            var k = mThree.getTileCoordinate(mThree.currentMove.column2, mThree.currentMove.row2, (mThree.animation.time / mThree.animation.total) * -h, (mThree.animation.time / mThree.animation.total) * -i);
+        if(mThree.gameState === 2 && (mThree.animation.state === 2 || mThree.animation.state === 3)) {
+            var shiftx = mThree.currentMove.column2 - mThree.currentMove.column1;
+            var shifty = mThree.currentMove.row2 - mThree.currentMove.row1;
+            var coord1 = mThree.getTileCoordinate(mThree.currentMove.column1, mThree.currentMove.row1, 0, 0);
+            var coord1shift = mThree.getTileCoordinate(mThree.currentMove.column1, mThree.currentMove.row1, (mThree.animation.time / mThree.animation.total) * shiftx, (mThree.animation.time / mThree.animation.total) * shifty);
+            var col1 = mThree.tilecolors[mThree.level.tiles[mThree.currentMove.column1][mThree.currentMove.row1].type];
+            var coord2 = mThree.getTileCoordinate(mThree.currentMove.column2, mThree.currentMove.row2, 0, 0);
+            var coord2shift = mThree.getTileCoordinate(mThree.currentMove.column2, mThree.currentMove.row2, (mThree.animation.time / mThree.animation.total) * -shiftx, (mThree.animation.time / mThree.animation.total) * -shifty);
+            var col2 = mThree.tilecolors[mThree.level.tiles[mThree.currentMove.column2][mThree.currentMove.row2].type];
+            mThree.drawTile(coord1.tilex, coord1.tiley, 0, 0, 0);
+            mThree.drawTile(coord2.tilex, coord2.tiley, 0, 0, 0);
             if(mThree.animation.state === 2) {
-                b.drawImage(mThree.tiles[mThree.currentMove.column1][mThree.currentMove.row1].img, j.tilex, j.tiley);
-                b.drawImage(mThree.tiles[mThree.currentMove.column2][mThree.currentMove.row2].img, k.tilex, k.tiley);
+                mThree.drawTile(coord1shift.tilex, coord1shift.tiley, col1[0], col1[1], col1[2]);
+                mThree.drawTile(coord2shift.tilex, coord2shift.tiley, col2[0], col2[1], col2[2]);
             }else{
-                b.drawImage(mThree.tiles[mThree.currentMove.column2][mThree.currentMove.row2].img, k.tilex, k.tiley);
-                b.drawImage(mThree.tiles[mThree.currentMove.column1][mThree.currentMove.row1].img, j.tilex, j.tiley);
+                mThree.drawTile(coord2shift.tilex, coord2shift.tiley, col2[0], col2[1], col2[2]);
+                mThree.drawTile(coord1shift.tilex, coord1shift.tiley, col1[0], col1[1], col1[2]);
             }
         }
-        if((mThree.clusters).length <= 0 && mThree.gamestate === 1) {
-            for(var l = 0; l < (mThree.moves).length; l++) {
-                var m = mThree.getTileCoordinate(mThree.moves[l].column1, mThree.moves[l].row1, 0, 0);
-                var n = mThree.getTileCoordinate(mThree.moves[l].column2, mThree.moves[l].row2, 0, 0);
-                b.beginPath();
-                b.moveTo(m.tilex + mThree.tileSize[0] / 2, m.tiley + mThree.tileSize[1] / 2);
-                b.lineTo(n.tilex + mThree.tileSize[0] / 2, n.tiley + mThree.tileSize[1] / 2);
-                b.closePath();
-                b.save();
-                b.strokeStyle = mThree.color.outline;
-                b.stroke();
-                b.restore();
+    },
+    getTileCoordinate: function(column, row, columnoffset, rowoffset) {
+        var tilex = mThree.level.tileSpacing + (column + columnoffset) * mThree.level.tileWidth;
+        var tiley = mThree.level.tileSpacing + (row + rowoffset) * mThree.level.tileHeight;
+        return {tilex: tilex, tiley: tiley};
+    },
+    drawTile: function(x, y, r, g, b) {
+        (mThree.context).fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+        (mThree.context).fillRect(x, y, mThree.level.tileWidth, mThree.level.tileHeight);
+    },
+    renderClusters: function() {
+        for(var i = 0; i < (mThree.clusters).length; i++) {
+            var coord = mThree.getTileCoordinate(mThree.clusters[i].column, mThree.clusters[i].row, 0, 0);
+            if(mThree.clusters[i].horizontal) {
+                (mThree.context).fillStyle = "#00ff00";
+                (mThree.context).fillRect(coord.tilex + mThree.level.tileWidth / 2, coord.tiley + mThree.level.tileHeight / 2 - 4, (mThree.clusters[i].length - 1) * mThree.level.tileWidth, 8);
+            }else{
+                (mThree.context).fillStyle = "#0000ff";
+                (mThree.context).fillRect(coord.tilex + mThree.level.tileWidth / 2 - 4, coord.tiley + mThree.level.tileHeight / 2, 8, (mThree.clusters[i].length - 1) * mThree.level.tileHeight);
             }
         }
+    },
+    newGame: function(a) {
+        mThree.score = ((a) ? a : 0);
+        mThree.gameState = 1;
+        mThree.gameEnded = false;
+        mThree.createLevel();
+        mThree.findMoves();
+        mThree.findClusters(); 
+    },
+    createLevel: function() {
+        var done = false;
+        while(!done) {
+            for(var i = 0; i < mThree.level.columns; i++) {
+                for(var j = 0; j < mThree.level.rows; j++) {
+                    mThree.level.tiles[i][j].type = mThree.getRandomTile();
+                }
+            }
+            mThree.resolveClusters();
+            mThree.findMoves();
+            if((mThree.moves).length > 0) {
+                done = true;
+            }
+        }
+    },
+    getRandomTile: function() {
+        return Math.round(Math.random() * ((mThree.tilecolors).length - 1));
+    },
+    resolveClusters: function() {
+        mThree.findClusters();
+        while((mThree.clusters).length > 0) {
+            mThree.removeClusters();
+            mThree.shiftTiles();
+            mThree.findClusters();
+        }
+    },
+    findClusters: function() {
+        mThree.clusters = [];
+        for(var j = 0; j < mThree.level.rows; j++) {
+            var matchlength = 1;
+            for(var i = 0; i < mThree.level.columns; i++) {
+                var checkcluster = false;
+                if(i === mThree.level.columns - 1) {
+                    checkcluster = true;
+                }else{
+                    if(mThree.level.tiles[i][j].type === mThree.level.tiles[i + 1][j].type && mThree.level.tiles[i][j].type !== -1) {
+                        matchlength += 1;
+                    }else{
+                        checkcluster = true;
+                    }
+                }
+                if(checkcluster) {
+                    if(matchlength >= 3) {
+                        (mThree.clusters).push({column: i + 1 - matchlength, row: j, length: matchlength, horizontal: true});
+                    }
+                    matchlength = 1;
+                }
+            }
+        }
+        for(var i = 0; i < mThree.level.columns; i++) {
+            var matchlength = 1;
+            for(var j = 0; j < mThree.level.rows; j++) {
+                var checkcluster = false;
+                if(j === mThree.level.rows - 1) {
+                    checkcluster = true;
+                }else{
+                    if(mThree.level.tiles[i][j].type === mThree.level.tiles[i][j + 1].type && mThree.level.tiles[i][j].type !== -1) {
+                        matchlength += 1;
+                    }else{
+                        checkcluster = true;
+                    }
+                }
+                if(checkcluster) {
+                    if(matchlength >= 3) {
+                        (mThree.clusters).push({column: i, row: j + 1 - matchlength, length: matchlength, horizontal: false});
+                    }
+                    matchlength = 1;
+                }
+            }
+        }
+    },
+    findMoves: function() {
+        mThree.moves = [];
+        for(var j = 0; j < mThree.level.rows; j++) {
+            for(var i = 0; i < mThree.level.columns - 1; i++) {
+                mThree.swap(i, j, i + 1, j);
+                mThree.findClusters();
+                mThree.swap(i, j, i + 1, j);
+                if((mThree.clusters).length > 0) {
+                    (mThree.moves).push({column1: i, row1: j, column2: i + 1, row2: j});
+                }
+            }
+        }
+        for(var i = 0; i < mThree.level.columns; i++) {
+            for (var j = 0; j < mThree.level.rows - 1; j++) {
+                mThree.swap(i, j, i, j + 1);
+                mThree.findClusters();
+                mThree.swap(i, j, i, j + 1);
+                if((mThree.clusters).length > 0) {
+                    (mThree.moves).push({column1: i, row1: j, column2: i, row2: j + 1});
+                }
+            }
+        }
+        mThree.clusters = [];
+    },
+    loopClusters: function(func) {
+        for(var i = 0; i < (mThree.clusters).length; i++) {
+            var cluster = mThree.clusters[i];
+            var coffset = 0;
+            var roffset = 0;
+            for(var j = 0; j < cluster.length; j++) {
+                func(i, cluster.column+coffset, cluster.row+roffset, cluster);
+                if(cluster.horizontal) {
+                    coffset++;
+                }else{
+                    roffset++;
+                }
+            }
+        }
+    },
+    removeClusters: function() {
+        mThree.loopClusters(function(index, column, row, cluster) { mThree.level.tiles[column][row].type = -1; });
+        for(var i = 0; i < mThree.level.columns; i++) {
+            var shift = 0;
+            for(var j = mThree.level.rows - 1; j >= 0; j--) {
+                if(mThree.level.tiles[i][j].type === -1) {
+                    shift++;
+                    mThree.level.tiles[i][j].shift = 0;
+                }else{
+                    mThree.level.tiles[i][j].shift = shift;
+                }
+            }
+        }
+    },
+    shiftTiles: function() {
+        for(var i = 0; i < mThree.level.columns; i++) {
+            for(var j = mThree.level.rows - 1; j >= 0; j--) {
+                if(mThree.level.tiles[i][j].type === -1) {
+                    mThree.level.tiles[i][j].type = mThree.getRandomTile();
+                }else{
+                    var shift = mThree.level.tiles[i][j].shift;
+                    if(shift > 0) {
+                        mThree.swap(i, j, i, j + shift);
+                    }
+                }
+                mThree.level.tiles[i][j].shift = 0;
+            }
+        }
+    },
+    getMouseTile: function(pos) {
+        var tx = Math.floor((pos.x - mThree.level.tileSpacing) / mThree.level.tileWidth);
+        var ty = Math.floor((pos.y - mThree.level.tileSpacing) / mThree.level.tileHeight);
+        if(tx >= 0 && tx < mThree.level.columns && ty >= 0 && ty < mThree.level.rows) {
+            return {valid: true, x: tx, y: ty};
+        }
+        return {valid: false, x: 0, y: 0};
+    },
+    canSwap: function(x1, y1, x2, y2) {
+        if((Math.abs(x1 - x2) === 1 && y1 === y2) || (Math.abs(y1 - y2) === 1 && x1 === x2)) {
+            return true;
+        }
+        return false;
+    },
+    swap: function(x1, y1, x2, y2) {
+        var typeswap = mThree.level.tiles[x1][y1].type;
+        mThree.level.tiles[x1][y1].type = mThree.level.tiles[x2][y2].type;
+        mThree.level.tiles[x2][y2].type = typeswap;
+    },
+    mouseSwap: function(c1, r1, c2, r2) {
+        mThree.currentMove = {column1: c1, row1: r1, column2: c2, row2: r2};
+        mThree.level.selected = false;
+        mThree.animation.state = 2;
+        mThree.animation.time = 0;
+        mThree.gameState = 2;
+    },
+    mouse: {
+        move: function(e) {
+            if(!mThree.gameEnded) {
+                var pos = mThree.getMousePos(mThree.canvas, e);
+                if(mThree.dragging && mThree.level.selected !== false) {
+                    var mt = mThree.getMouseTile(pos);
+                    if(mt.valid) {
+                        if(mThree.canSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1])){
+                            mThree.mouseSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1]);
+                        }
+                    }
+                }
+            }
+        },
+        down: function(e) {
+            if(!mThree.gameEnded) {
+                var pos = mThree.getMousePos(mThree.canvas, e);
+                if(!mThree.dragging) {
+                    var mt = mThree.getMouseTile(pos);
+                    if(mt.valid) {
+                        var swapped = false;
+                        if(mThree.level.selected !== false) {
+                            if(mt.x === mThree.level.selected[0] && mt.y === mThree.level.selected[1]) {
+                                mThree.level.selected = false;
+                                mThree.dragging = true;
+                                return false;
+                            }else if(mThree.canSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1])){
+                                mThree.mouseSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1]);
+                                swapped = true;
+                            }
+                        }
+                        if(!swapped) {
+                            mThree.level.selected = [mt.x, mt.y];
+                        }
+                    }else{
+                        mThree.level.selected = false;
+                    }
+                    mThree.dragging = true;
+                }
+            }
+        },
+        up: function(e) {
+            if(!mThree.gameEnded) {
+                mThree.dragging = false;
+            }
+        },
+        out: function(e) {
+            if(!mThree.gameEnded) {
+                mThree.dragging = false;
+            }
+        }
+    },
+    getMousePos: function(canvas, e) {
+        var rect = (mThree.canvas).getBoundingClientRect();
+        return {
+            x: Math.round((e.clientX - rect.left) / (rect.right - rect.left) * (mThree.canvas).width),
+            y: Math.round((e.clientY - rect.top) / (rect.bottom - rect.top) * (mThree.canvas).height)
+        };
     }
 };
