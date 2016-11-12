@@ -12,7 +12,7 @@ var mThree = {
         tiles: [],
         selected: false
     },
-    selectedOpacity: 0.6,
+    tileOpacity: 0.6,
     matchOutline: "rgba(0, 0, 0, 0.8)",
     showMoves: false,
     movesOutline: "rgba(250, 25, 25, 0.8)",
@@ -36,7 +36,7 @@ var mThree = {
     animation: {
         state: 0,
         time: 0,
-        total: 0.6
+        total: 0.3
     },
     popup: {
         font: "20px Ravi Prakash, sans-serif",
@@ -179,7 +179,7 @@ var mThree = {
                     var img = mThree.level.tiles[i][j].img;
                     img.src = mThree.tileData[mThree.level.tiles[i][j].type].url;
                     (mThree.context).save();
-                    (mThree.context).globalAlpha = mThree.selectedOpacity;
+                    (mThree.context).globalAlpha = mThree.tileOpacity;
                     (mThree.context).drawImage(img, coord.tilex, coord.tiley);
                     (mThree.context).restore();
                 }
@@ -203,7 +203,7 @@ var mThree = {
             (mThree.context).clearRect(coord1.tilex, coord1.tiley, mThree.level.tileSize[0], mThree.level.tileSize[1]);
             (mThree.context).clearRect(coord2.tilex, coord2.tiley, mThree.level.tileSize[0], mThree.level.tileSize[1]);
             (mThree.context).save();
-            (mThree.context).globalAlpha = mThree.selectedOpacity;
+            (mThree.context).globalAlpha = mThree.tileOpacity;
             if(mThree.animation.state === 2) {
                 (mThree.context).drawImage(img1, coord1shift.tilex, coord1shift.tiley);
                 (mThree.context).drawImage(img2, coord2shift.tilex, coord2shift.tiley);
