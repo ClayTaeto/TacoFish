@@ -39,7 +39,7 @@ var mThree = {
         total: 0.3
     },
     popup: {
-        font: "20px Ravi Prakash, sans-serif",
+        font: "30px Ravi Prakash, sans-serif",
         text: "",
         state: 0,
         time: 0,
