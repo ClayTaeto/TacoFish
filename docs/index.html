@@ -7,12 +7,17 @@
   <title>TacoFish</title>
 </head>
 
-<body>
-	<script src="client.min.js"></script>
+<body ondragstart="return false;" oncontextmenu="return false;">
+	
 	<div class="taco-wrap">	  
 	  <nav class="fish-it">…</nav>
-	  <main class="match-it">…</main>
+	  <main class="match-it">
+	  	<div>
+	  		<canvas id="mThree"></canvas>
+	  	</div>
+	  </main>
 	</div>
+	<script src="client.min.js"></script>
 </body>
 
 </html>
