@@ -1,0 +1,36 @@
+@charset "UTF-8";
+*, *:before, *:after {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+#mThree {
+    position: absolute;
+    z-index: 2;
+    top: 0; right: 0; bottom: 0; left: 0;
+    margin: auto;
+    cursor: pointer;
+}
+p {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 16px;
+    top: -5px; right: 0; left: 0;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: "Ravi Prakash", san-serif;
+    text-align: center;
+    font-size: 16px;
+}
+code {
+    font-size: 12px;
+}
