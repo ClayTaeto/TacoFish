@@ -1,0 +1,9 @@
+Name
+Description & flavor text
+[powerup]
+
+"MechBob" (MechJeb)
+A mechanical fish that will plot the stars if you'd let it. 
+Highlights potential matches. 
+[item will highlight a match every 10 seconds]
+
