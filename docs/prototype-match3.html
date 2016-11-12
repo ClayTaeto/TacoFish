@@ -5,24 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="TacoFish">
     <title>Match-3</title>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ravi+Prakash"/>
     <style type="text/css">
+      *, *:before, *:after {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
       #mThree {
-        position: relative;
-        float: left;
+        position: absolute;
+        z-index: 2;
+        top: 0; right: 0; bottom: 0; left: 0;
+        margin: auto;
         cursor: pointer;
       }
       p {
-        position: relative;
-        float: left;
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        height: 16px;
+        top: -5px; right: 0; left: 0;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        font-family: "Ravi Prakash", san-serif;
+        text-align: center;
+        font-size: 16px;
+      }
+      code {
+        font-size: 12px;
       }
     </style>
   </head>
-  <body ondragstart="return false;">
+  <body ondragstart="return false;" oncontextmenu="return false;">
     <canvas id="mThree" width="530" height="530"></canvas>
-    <p>Set <code>mThree.showMoves</code> to <code>true</code> for move cheats</p>
+    <p>Set <code>mThree.showMoves</code> to <code>true</code> (default <code>false</code>) for move cheats</p>
     <script type="text/javascript" src="js/mThree.js"></script>
-    <script type="text/javascript">
-      mThree.init();
-    </script>
   </body>
 </html>

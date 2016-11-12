@@ -14,6 +14,8 @@ var mThree = {
     },
     selectedOpacity: 0.6,
     matchOutline: "rgba(0, 0, 0, 0.8)",
+    showMoves: false,
+    movesOutline: "rgba(250, 25, 25, 0.8)",
     tileData: [{url: "img/type1.png", matched: function() {
         (mThree.matchesMade).push(1);
     }}, {url: "img/type2.png", matched: function() {
@@ -29,13 +31,19 @@ var mThree = {
     moves: [],
     currentMove: {column1: 0, row1: 0, column2: 0, row2: 0},
     gameState: 0,
-    showMoves: false,
     score: 0,
     matchesMade: [],
     animation: {
         state: 0,
         time: 0,
-        total: 0.3
+        total: 0.6
+    },
+    popup: {
+        font: "20px Ravi Prakash, sans-serif",
+        text: "",
+        state: 0,
+        time: 0,
+        total: 1.2
     },
     gameEnded: false,
     init: function() {
@@ -60,8 +68,20 @@ var mThree = {
     update: function(a) {
         var b = (a - mThree.lastFrame) / 1000;
         mThree.lastFrame = a;
+        if(mThree.popup.state === 1) {
+            mThree.popup.time += b;
+            mThree.popup.state = 0;
+        }else if(mThree.popup.time > 0) {
+            mThree.popup.time += b;
+            if(mThree.popup.time > mThree.popup.total) {
+                mThree.popup.time = 0;
+                mThree.popup.text = "";
+            }
+        }
         if(mThree.gameState === 1) {
             if((mThree.moves).length <= 0) {
+                mThree.popup.state = 1;
+                mThree.popup.text = "Tiles reshuffled!";
                 mThree.newGame(mThree.score);
             }
         }else if(mThree.gameState === 2) {
@@ -122,13 +142,32 @@ var mThree = {
         if(mThree.showMoves && (mThree.clusters).length <= 0 && mThree.gameState === 1) {
             mThree.renderMoves();
         }
+        if(mThree.popup.time > 0) {
+            (mThree.context).save();
+            if(mThree.popup.time > (mThree.popup.total / 3)) {
+                var a = mThree.popup.total / 3;
+                (mThree.context).fillStyle = "rgba(0, 0, 0, " + (1 - ((mThree.popup.time - a) / (mThree.popup.total - a))).toFixed(2) + ")";
+            }else{
+                (mThree.context).fillStyle = "rgb(0, 0, 0)";
+            }
+            (mThree.context).font = mThree.popup.font;
+            (mThree.context).textAlign = "center";
+            (mThree.context).beginPath();
+            (mThree.context).moveTo((mThree.canvas).width / 2, 0);
+            (mThree.context).lineTo((mThree.canvas).width / 2, (mThree.canvas).height);
+            (mThree.context).closePath();
+            (mThree.context).fillText(mThree.popup.text, (mThree.canvas).width / 2, (mThree.canvas).height / 4);
+            (mThree.context).restore();
+        }
         if(mThree.gameEnded) {
+            (mThree.context).save();
             (mThree.context).fillStyle = "rgba(0, 0, 0, 0.8)";
             (mThree.context).fillRect(mThree.level.tileSpacing, mThree.level.tileSpacing, mThree.level.columns * mThree.level.tileSize[0], mThree.level.rows * mThree.level.tileSize[1]);
             (mThree.context).fillStyle = "rgba(255, 255, 255, 0.8)";
-            (mThree.context).font = "24px Verdana";
-            var a = (mThree.context).measureText("Game Ended!");
-            (mThree.context).fillText("Game Ended!", mThree.level.tileSpacing + ((mThree.level.columns * mThree.level.tileSize[0]) - a.width) / 2, mThree.tileSpacing);
+            (mThree.context).font = mThree.popup.font;
+            var c = (mThree.context).measureText("Game Ended!");
+            (mThree.context).fillText("Game Ended!", mThree.level.tileSpacing + ((mThree.level.columns * mThree.level.tileSize[0]) - c.width) / 2, mThree.tileSpacing);
+            (mThree.context).restore();
         }
     },
     renderTiles: function() {
@@ -183,24 +222,56 @@ var mThree = {
     renderClusters: function() {
         for(var i = 0; i < (mThree.clusters).length; i++) {
             var coord = mThree.getTileCoordinate(mThree.clusters[i].column, mThree.clusters[i].row, 0, 0);
+            (mThree.context).save();
             if(mThree.clusters[i].horizontal) {
-                (mThree.context).fillStyle = mThree.matchOutline;
-                (mThree.context).fillRect(coord.tilex + mThree.level.tileSize[0] / 2, coord.tiley + mThree.level.tileSize[1] / 2 - 2.5, (mThree.clusters[i].length - 1) * mThree.level.tileSize[0], 5);
+                var length = coord.tilex + ((mThree.clusters[i].length * mThree.level.tileSize[0]) + ((mThree.clusters[i].length - 1) * mThree.level.tileSpacing));
+                (mThree.context).beginPath();
+                (mThree.context).moveTo(coord.tilex, coord.tiley + (mThree.level.tileSize[1] / 2));
+                (mThree.context).lineTo(coord.tilex, coord.tiley + mThree.level.tileSpacing);
+                (mThree.context).quadraticCurveTo(coord.tilex, coord.tiley, coord.tilex + mThree.level.tileSpacing, coord.tiley);
+                (mThree.context).lineTo(length - mThree.level.tileSpacing, coord.tiley);
+                (mThree.context).quadraticCurveTo(length, coord.tiley, length, coord.tiley + mThree.level.tileSpacing);
+                (mThree.context).lineTo(length, coord.tiley + (mThree.level.tileSize[1] - mThree.level.tileSpacing));
+                (mThree.context).quadraticCurveTo(length, coord.tiley + mThree.level.tileSize[1], length - mThree.level.tileSpacing, coord.tiley + mThree.level.tileSize[1]); // Bottom right corner
+                (mThree.context).lineTo(coord.tilex + mThree.level.tileSpacing, coord.tiley + mThree.level.tileSize[1]);
+                (mThree.context).quadraticCurveTo(coord.tilex, coord.tiley + mThree.level.tileSize[1], coord.tilex, coord.tiley + (mThree.level.tileSize[1] - mThree.level.tileSpacing));
+                (mThree.context).lineTo(coord.tilex, coord.tiley + (mThree.level.tileSize[1] / 2));
+                (mThree.context).closePath();
+                (mThree.context).strokeStyle = mThree.matchOutline;
+                (mThree.context).lineWidth = Math.floor(mThree.level.tileSpacing / 2);
+                (mThree.context).stroke();
             }else{
-                (mThree.context).fillStyle = mThree.matchOutline;
-                (mThree.context).fillRect(coord.tilex + mThree.level.tileSize[0] / 2 - 2.5, coord.tiley + mThree.level.tileSize[1] / 2, 5, (mThree.clusters[i].length - 1) * mThree.level.tileSize[1]);
+                var length2 = coord.tiley + ((mThree.clusters[i].length * mThree.level.tileSize[1]) + ((mThree.clusters[i].length - 1) * mThree.level.tileSpacing));
+                (mThree.context).beginPath();
+                (mThree.context).moveTo(coord.tilex + (mThree.level.tileSize[0] / 2), coord.tiley);
+                (mThree.context).lineTo(coord.tilex + mThree.level.tileSpacing, coord.tiley);
+                (mThree.context).quadraticCurveTo(coord.tilex, coord.tiley, coord.tilex, coord.tiley + mThree.level.tileSpacing);
+                (mThree.context).lineTo(coord.tilex, length2 - mThree.level.tileSpacing);
+                (mThree.context).quadraticCurveTo(coord.tilex, length2, coord.tilex + mThree.level.tileSpacing, length2);
+                (mThree.context).lineTo(coord.tilex + (mThree.level.tileSize[0] - mThree.level.tileSpacing), length2);
+                (mThree.context).quadraticCurveTo(coord.tilex + mThree.level.tileSize[0], length2, coord.tilex + mThree.level.tileSize[0], length2 - mThree.level.tileSpacing); // Bottom right corner
+                (mThree.context).lineTo(coord.tilex + mThree.level.tileSize[0], coord.tiley + mThree.level.tileSpacing);
+                (mThree.context).quadraticCurveTo(coord.tilex + mThree.level.tileSize[0], coord.tiley, coord.tilex + (mThree.level.tileSize[0] - mThree.level.tileSpacing), coord.tiley);
+                (mThree.context).lineTo(coord.tilex + (mThree.level.tileSize[0] / 2), coord.tiley);
+                (mThree.context).closePath();
+                (mThree.context).strokeStyle = mThree.matchOutline;
+                (mThree.context).lineWidth = Math.floor(mThree.level.tileSpacing / 2);
+                (mThree.context).stroke();
             }
+            (mThree.context).restore();
         }
     },
     renderMoves: function() {
         for(var i = 0; i < (mThree.moves).length; i++) {
             var coord1 = mThree.getTileCoordinate(mThree.moves[i].column1, mThree.moves[i].row1, 0, 0);
             var coord2 = mThree.getTileCoordinate(mThree.moves[i].column2, mThree.moves[i].row2, 0, 0);
-            (mThree.context).strokeStyle = "#ff0000";
+            (mThree.context).save();
+            (mThree.context).strokeStyle = "rgb(250, 25, 25)";
             (mThree.context).beginPath();
             (mThree.context).moveTo(coord1.tilex + mThree.level.tileSize[0] / 2, coord1.tiley + mThree.level.tileSize[1] / 2);
             (mThree.context).lineTo(coord2.tilex + mThree.level.tileSize[0] / 2, coord2.tiley + mThree.level.tileSize[1] / 2);
             (mThree.context).stroke();
+            (mThree.context).restore();
         }
     },
     newGame: function(a) {
@@ -262,24 +333,24 @@ var mThree = {
                 }
             }
         }
-        for(var i = 0; i < mThree.level.columns; i++) {
-            var matchlength = 1;
-            for(var j = 0; j < mThree.level.rows; j++) {
-                var checkcluster = false;
-                if(j === mThree.level.rows - 1) {
-                    checkcluster = true;
+        for(var k = 0; k < mThree.level.columns; k++) {
+            var matchlength2 = 1;
+            for(var l = 0; l < mThree.level.rows; l++) {
+                var checkcluster2 = false;
+                if(l === mThree.level.rows - 1) {
+                    checkcluster2 = true;
                 }else{
-                    if(mThree.level.tiles[i][j].type === mThree.level.tiles[i][j + 1].type && mThree.level.tiles[i][j].type !== -1) {
-                        matchlength += 1;
+                    if(mThree.level.tiles[k][l].type === mThree.level.tiles[k][l + 1].type && mThree.level.tiles[k][l].type !== -1) {
+                        matchlength2 += 1;
                     }else{
-                        checkcluster = true;
+                        checkcluster2 = true;
                     }
                 }
-                if(checkcluster) {
-                    if(matchlength >= 3) {
-                        (mThree.clusters).push({column: i, row: j + 1 - matchlength, length: matchlength, horizontal: false});
+                if(checkcluster2) {
+                    if(matchlength2 >= 3) {
+                        (mThree.clusters).push({column: k, row: l + 1 - matchlength2, length: matchlength2, horizontal: false});
                     }
-                    matchlength = 1;
+                    matchlength2 = 1;
                 }
             }
         }
@@ -309,21 +380,25 @@ var mThree = {
         mThree.clusters = [];
     },
     loopClusters: function(func, ltype) {
+        var counted = false;
         for(var i = 0; i < (mThree.clusters).length; i++) {
             var cluster = mThree.clusters[i];
             var coffset = 0;
             var roffset = 0;
             var gtype = mThree.level.tiles[cluster.column][cluster.row].type;
+            counted = false;
             for(var j = 0; j < cluster.length; j++) {
+                gtype = mThree.level.tiles[cluster.column + coffset][cluster.row + roffset].type;
                 func(i, cluster.column + coffset, cluster.row + roffset, cluster);
                 if(cluster.horizontal) {
                     coffset++;
                 }else{
                     roffset++;
                 }
-            }
-            if(typeof ltype === "string" && ltype === "remove" && mThree.initiated && gtype !== -1) {
-                mThree.tileData[gtype].matched();
+                if(typeof ltype === "string" && ltype === "remove" && mThree.initiated && gtype !== -1 && !counted) {
+                    mThree.tileData[gtype].matched();
+                    counted = true;
+                }
             }
         }
     },
@@ -386,7 +461,7 @@ var mThree = {
     },
     mouse: {
         move: function(e) {
-            if(!mThree.gameEnded) {
+            if(!mThree.gameEnded && mThree.gameState === 1) {
                 var pos = mThree.getMousePos(mThree.canvas, e);
                 if(mThree.dragging && mThree.level.selected !== false) {
                     var mt = mThree.getMouseTile(pos);
@@ -399,7 +474,7 @@ var mThree = {
             }
         },
         down: function(e) {
-            if(!mThree.gameEnded) {
+            if(!mThree.gameEnded && mThree.gameState === 1) {
                 var pos = mThree.getMousePos(mThree.canvas, e);
                 if(!mThree.dragging) {
                     var mt = mThree.getMouseTile(pos);
@@ -444,3 +519,4 @@ var mThree = {
         };
     }
 };
+mThree.init();
