@@ -1,7 +1,5 @@
-window.onerror = function(error, url, line) {
-    alert(error + " (Line " + line + ")");
-};
 var mThree = {
+    initiated: false,
     canvas: document.getElementById("mThree"),
     context: document.getElementById("mThree").getContext("2d"),
     lastFrame: 0,
@@ -9,24 +7,31 @@ var mThree = {
     level: {
         columns: 5,
         rows: 5,
-        tileWidth: 100,
-        tileHeight: 100,
+        tileSize: [100, 100],
         tileSpacing: 5,
         tiles: [],
         selected: false
     },
-    tilecolors: [[255, 128, 128],
-                [128, 255, 128],
-                [128, 128, 255],
-                [255, 255, 128],
-                [255, 128, 255],
-                [128, 255, 255],
-                [255, 255, 255]],
+    selectedOpacity: 0.6,
+    matchOutline: "rgba(0, 0, 0, 0.8)",
+    tileData: [{url: "img/type1.png", matched: function() {
+        (mThree.matchesMade).push(1);
+    }}, {url: "img/type2.png", matched: function() {
+        (mThree.matchesMade).push(2);
+    }}, {url: "img/type3.png", matched: function() {
+        (mThree.matchesMade).push(3);
+    }}, {url: "img/type4.png", matched: function() {
+        (mThree.matchesMade).push(4);
+    }}, {url: "img/type5.png", matched: function() {
+        (mThree.matchesMade).push(5);
+    }}],
     clusters: [],
     moves: [],
     currentMove: {column1: 0, row1: 0, column2: 0, row2: 0},
     gameState: 0,
+    showMoves: false,
     score: 0,
+    matchesMade: [],
     animation: {
         state: 0,
         time: 0,
@@ -41,32 +46,32 @@ var mThree = {
         for(var i = 0; i < mThree.level.columns; i++) {
             mThree.level.tiles[i] = [];
             for(var j = 0; j < mThree.level.rows; j++) {
-                mThree.level.tiles[i][j] = {type: 0, shift: 0};
+                mThree.level.tiles[i][j] = {type: 0, shift: 0, img: document.createElement("img")};
             }
         }
         mThree.newGame();
         mThree.main(0);
     },
-    main: function(tframe) {
-        mThree.update(tframe);
+    main: function(a) {
+        mThree.update(a);
         mThree.render();
         window.requestAnimationFrame(mThree.main);
     },
-    update: function(tframe) {
-        var dt = (tframe - mThree.lastFrame) / 1000;
-        mThree.lastFrame = tframe;
+    update: function(a) {
+        var b = (a - mThree.lastFrame) / 1000;
+        mThree.lastFrame = a;
         if(mThree.gameState === 1) {
             if((mThree.moves).length <= 0) {
                 mThree.newGame(mThree.score);
             }
         }else if(mThree.gameState === 2) {
-            mThree.animation.time += dt;
+            mThree.animation.time += b;
             if(mThree.animation.state === 0) {
                 if(mThree.animation.time > mThree.animation.total) {
                     mThree.findClusters();
                     if((mThree.clusters).length > 0) {
-                        for(var i = 0; i < (mThree.clusters).length; i++) {
-                            mThree.score += 10 * (mThree.clusters[i].length - 2);
+                        for(var c = 0; c < (mThree.clusters).length; c++) {
+                            mThree.score += 10 * (mThree.clusters[c].length - 2);
                         }
                         mThree.removeClusters();
                         mThree.animation.state = 1;
@@ -114,13 +119,16 @@ var mThree = {
         (mThree.context).clearRect(0, 0, (mThree.canvas).width, (mThree.canvas).height);
         mThree.renderTiles();
         mThree.renderClusters();
+        if(mThree.showMoves && (mThree.clusters).length <= 0 && mThree.gameState === 1) {
+            mThree.renderMoves();
+        }
         if(mThree.gameEnded) {
             (mThree.context).fillStyle = "rgba(0, 0, 0, 0.8)";
-            (mThree.context).fillRect(mThree.level.tileSpacing, mThree.level.tileSpacing, mThree.level.columns * mThree.level.tileWidth, mThree.level.rows * mThree.level.tileHeight);
-            (mThree.context).fillStyle = "#ffffff";
+            (mThree.context).fillRect(mThree.level.tileSpacing, mThree.level.tileSpacing, mThree.level.columns * mThree.level.tileSize[0], mThree.level.rows * mThree.level.tileSize[1]);
+            (mThree.context).fillStyle = "rgba(255, 255, 255, 0.8)";
             (mThree.context).font = "24px Verdana";
-            var textdim = (mThree.context).measureText("Game Ended!");
-            (mThree.context).fillText("Game Ended!", mThree.level.tileSpacing + ((mThree.level.columns * mThree.level.tileWidth) - textdim.width) / 2, mThree.tileSpacing);
+            var a = (mThree.context).measureText("Game Ended!");
+            (mThree.context).fillText("Game Ended!", mThree.level.tileSpacing + ((mThree.level.columns * mThree.level.tileSize[0]) - a.width) / 2, mThree.tileSpacing);
         }
     },
     renderTiles: function() {
@@ -129,13 +137,16 @@ var mThree = {
                 var shift = mThree.level.tiles[i][j].shift;
                 var coord = mThree.getTileCoordinate(i, j, 0, (mThree.animation.time / mThree.animation.total) * shift);
                 if(mThree.level.tiles[i][j].type >= 0) {
-                    var col = mThree.tilecolors[mThree.level.tiles[i][j].type];
-                    mThree.drawTile(coord.tilex, coord.tiley, col[0], col[1], col[2]);
+                    var img = mThree.level.tiles[i][j].img;
+                    img.src = mThree.tileData[mThree.level.tiles[i][j].type].url;
+                    (mThree.context).save();
+                    (mThree.context).globalAlpha = mThree.selectedOpacity;
+                    (mThree.context).drawImage(img, coord.tilex, coord.tiley);
+                    (mThree.context).restore();
                 }
-                if(mThree.level.selected !== false) {
-                    if(mThree.level.selected[0] === i && mThree.level.selected[1] === j) {
-                        mThree.drawTile(coord.tilex, coord.tiley, 255, 0, 0);
-                    }
+                if(mThree.level.selected !== false && mThree.level.selected[0] === i && mThree.level.selected[1] === j) {
+                    var imgS = mThree.level.tiles[i][j].img;
+                    (mThree.context).drawImage(imgS, coord.tilex, coord.tiley);
                 }
             }
         }
@@ -143,50 +154,64 @@ var mThree = {
             var shiftx = mThree.currentMove.column2 - mThree.currentMove.column1;
             var shifty = mThree.currentMove.row2 - mThree.currentMove.row1;
             var coord1 = mThree.getTileCoordinate(mThree.currentMove.column1, mThree.currentMove.row1, 0, 0);
-            var coord1shift = mThree.getTileCoordinate(mThree.currentMove.column1, mThree.currentMove.row1, (mThree.animation.time / mThree.animation.total) * shiftx, (mThree.animation.time / mThree.animation.total) * shifty);
-            var col1 = mThree.tilecolors[mThree.level.tiles[mThree.currentMove.column1][mThree.currentMove.row1].type];
             var coord2 = mThree.getTileCoordinate(mThree.currentMove.column2, mThree.currentMove.row2, 0, 0);
+            var coord1shift = mThree.getTileCoordinate(mThree.currentMove.column1, mThree.currentMove.row1, (mThree.animation.time / mThree.animation.total) * shiftx, (mThree.animation.time / mThree.animation.total) * shifty);
             var coord2shift = mThree.getTileCoordinate(mThree.currentMove.column2, mThree.currentMove.row2, (mThree.animation.time / mThree.animation.total) * -shiftx, (mThree.animation.time / mThree.animation.total) * -shifty);
-            var col2 = mThree.tilecolors[mThree.level.tiles[mThree.currentMove.column2][mThree.currentMove.row2].type];
-            mThree.drawTile(coord1.tilex, coord1.tiley, 0, 0, 0);
-            mThree.drawTile(coord2.tilex, coord2.tiley, 0, 0, 0);
+            var img1 = mThree.level.tiles[mThree.currentMove.column1][mThree.currentMove.row1].img;
+            img1.src = mThree.tileData[mThree.level.tiles[mThree.currentMove.column1][mThree.currentMove.row1].type].url;
+            var img2 = mThree.level.tiles[mThree.currentMove.column2][mThree.currentMove.row2].img;
+            img2.src = mThree.tileData[mThree.level.tiles[mThree.currentMove.column2][mThree.currentMove.row2].type].url;
+            (mThree.context).clearRect(coord1.tilex, coord1.tiley, mThree.level.tileSize[0], mThree.level.tileSize[1]);
+            (mThree.context).clearRect(coord2.tilex, coord2.tiley, mThree.level.tileSize[0], mThree.level.tileSize[1]);
+            (mThree.context).save();
+            (mThree.context).globalAlpha = mThree.selectedOpacity;
             if(mThree.animation.state === 2) {
-                mThree.drawTile(coord1shift.tilex, coord1shift.tiley, col1[0], col1[1], col1[2]);
-                mThree.drawTile(coord2shift.tilex, coord2shift.tiley, col2[0], col2[1], col2[2]);
+                (mThree.context).drawImage(img1, coord1shift.tilex, coord1shift.tiley);
+                (mThree.context).drawImage(img2, coord2shift.tilex, coord2shift.tiley);
             }else{
-                mThree.drawTile(coord2shift.tilex, coord2shift.tiley, col2[0], col2[1], col2[2]);
-                mThree.drawTile(coord1shift.tilex, coord1shift.tiley, col1[0], col1[1], col1[2]);
+                (mThree.context).drawImage(img2, coord2shift.tilex, coord2shift.tiley);
+                (mThree.context).drawImage(img1, coord1shift.tilex, coord1shift.tiley);
             }
+            (mThree.context).restore();
         }
     },
     getTileCoordinate: function(column, row, columnoffset, rowoffset) {
-        var tilex = mThree.level.tileSpacing + (column + columnoffset) * mThree.level.tileWidth;
-        var tiley = mThree.level.tileSpacing + (row + rowoffset) * mThree.level.tileHeight;
+        var tilex = (mThree.level.tileSpacing * (column + 1)) + (column + columnoffset) * mThree.level.tileSize[0];
+        var tiley = (mThree.level.tileSpacing * (row + 1)) + (row + rowoffset) * mThree.level.tileSize[1];
         return {tilex: tilex, tiley: tiley};
-    },
-    drawTile: function(x, y, r, g, b) {
-        (mThree.context).fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-        (mThree.context).fillRect(x, y, mThree.level.tileWidth, mThree.level.tileHeight);
     },
     renderClusters: function() {
         for(var i = 0; i < (mThree.clusters).length; i++) {
             var coord = mThree.getTileCoordinate(mThree.clusters[i].column, mThree.clusters[i].row, 0, 0);
             if(mThree.clusters[i].horizontal) {
-                (mThree.context).fillStyle = "#00ff00";
-                (mThree.context).fillRect(coord.tilex + mThree.level.tileWidth / 2, coord.tiley + mThree.level.tileHeight / 2 - 4, (mThree.clusters[i].length - 1) * mThree.level.tileWidth, 8);
+                (mThree.context).fillStyle = mThree.matchOutline;
+                (mThree.context).fillRect(coord.tilex + mThree.level.tileSize[0] / 2, coord.tiley + mThree.level.tileSize[1] / 2 - 2.5, (mThree.clusters[i].length - 1) * mThree.level.tileSize[0], 5);
             }else{
-                (mThree.context).fillStyle = "#0000ff";
-                (mThree.context).fillRect(coord.tilex + mThree.level.tileWidth / 2 - 4, coord.tiley + mThree.level.tileHeight / 2, 8, (mThree.clusters[i].length - 1) * mThree.level.tileHeight);
+                (mThree.context).fillStyle = mThree.matchOutline;
+                (mThree.context).fillRect(coord.tilex + mThree.level.tileSize[0] / 2 - 2.5, coord.tiley + mThree.level.tileSize[1] / 2, 5, (mThree.clusters[i].length - 1) * mThree.level.tileSize[1]);
             }
         }
     },
+    renderMoves: function() {
+        for(var i = 0; i < (mThree.moves).length; i++) {
+            var coord1 = mThree.getTileCoordinate(mThree.moves[i].column1, mThree.moves[i].row1, 0, 0);
+            var coord2 = mThree.getTileCoordinate(mThree.moves[i].column2, mThree.moves[i].row2, 0, 0);
+            (mThree.context).strokeStyle = "#ff0000";
+            (mThree.context).beginPath();
+            (mThree.context).moveTo(coord1.tilex + mThree.level.tileSize[0] / 2, coord1.tiley + mThree.level.tileSize[1] / 2);
+            (mThree.context).lineTo(coord2.tilex + mThree.level.tileSize[0] / 2, coord2.tiley + mThree.level.tileSize[1] / 2);
+            (mThree.context).stroke();
+        }
+    },
     newGame: function(a) {
+        mThree.initiated = false;
         mThree.score = ((a) ? a : 0);
         mThree.gameState = 1;
         mThree.gameEnded = false;
         mThree.createLevel();
         mThree.findMoves();
-        mThree.findClusters(); 
+        mThree.findClusters();
+        mThree.initiated = true;
     },
     createLevel: function() {
         var done = false;
@@ -204,7 +229,7 @@ var mThree = {
         }
     },
     getRandomTile: function() {
-        return Math.round(Math.random() * ((mThree.tilecolors).length - 1));
+        return Math.round(Math.random() * ((mThree.tileData).length - 1));
     },
     resolveClusters: function() {
         mThree.findClusters();
@@ -272,7 +297,7 @@ var mThree = {
             }
         }
         for(var i = 0; i < mThree.level.columns; i++) {
-            for (var j = 0; j < mThree.level.rows - 1; j++) {
+            for(var j = 0; j < mThree.level.rows - 1; j++) {
                 mThree.swap(i, j, i, j + 1);
                 mThree.findClusters();
                 mThree.swap(i, j, i, j + 1);
@@ -283,23 +308,29 @@ var mThree = {
         }
         mThree.clusters = [];
     },
-    loopClusters: function(func) {
+    loopClusters: function(func, ltype) {
         for(var i = 0; i < (mThree.clusters).length; i++) {
             var cluster = mThree.clusters[i];
             var coffset = 0;
             var roffset = 0;
+            var gtype = mThree.level.tiles[cluster.column][cluster.row].type;
             for(var j = 0; j < cluster.length; j++) {
-                func(i, cluster.column+coffset, cluster.row+roffset, cluster);
+                func(i, cluster.column + coffset, cluster.row + roffset, cluster);
                 if(cluster.horizontal) {
                     coffset++;
                 }else{
                     roffset++;
                 }
             }
+            if(typeof ltype === "string" && ltype === "remove" && mThree.initiated && gtype !== -1) {
+                mThree.tileData[gtype].matched();
+            }
         }
     },
     removeClusters: function() {
-        mThree.loopClusters(function(index, column, row, cluster) { mThree.level.tiles[column][row].type = -1; });
+        mThree.loopClusters(function(index, column, row, cluster) {
+            mThree.level.tiles[column][row].type = -1;
+        }, "remove");
         for(var i = 0; i < mThree.level.columns; i++) {
             var shift = 0;
             for(var j = mThree.level.rows - 1; j >= 0; j--) {
@@ -328,8 +359,8 @@ var mThree = {
         }
     },
     getMouseTile: function(pos) {
-        var tx = Math.floor((pos.x - mThree.level.tileSpacing) / mThree.level.tileWidth);
-        var ty = Math.floor((pos.y - mThree.level.tileSpacing) / mThree.level.tileHeight);
+        var tx = ((pos.x / (mThree.level.tileSize[0] + mThree.level.tileSpacing)) >> 0);
+        var ty = ((pos.y / (mThree.level.tileSize[1] + mThree.level.tileSpacing)) >> 0);
         if(tx >= 0 && tx < mThree.level.columns && ty >= 0 && ty < mThree.level.rows) {
             return {valid: true, x: tx, y: ty};
         }
@@ -379,7 +410,7 @@ var mThree = {
                                 mThree.level.selected = false;
                                 mThree.dragging = true;
                                 return false;
-                            }else if(mThree.canSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1])){
+                            }else if(mThree.canSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1])) {
                                 mThree.mouseSwap(mt.x, mt.y, mThree.level.selected[0], mThree.level.selected[1]);
                                 swapped = true;
                             }
