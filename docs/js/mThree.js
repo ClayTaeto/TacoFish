@@ -311,6 +311,8 @@ var mThree = {
         mThree.initiated = true;
     },
     createLevel: function() {
+        (mThree.canvas).width = (mThree.level.tileSize[0] * mThree.level.columns) + ((mThree.level.tileSpacing + 1) * mThree.level.columns);
+        (mThree.canvas).height = (mThree.level.tileSize[1] * mThree.level.rows) + ((mThree.level.tileSpacing + 1) * mThree.level.rows);
         var a = false;
         while(!a) {
             for(var b = 0; b < mThree.level.columns; b++) {
