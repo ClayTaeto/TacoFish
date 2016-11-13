@@ -15,6 +15,7 @@ var mThree = {
     tileOpacity: 0.6,
     matchOutline: "rgba(0, 0, 0, 0.8)",
     showMoves: false,
+    autoPlay: false,
     movesOutline: "rgba(25, 25, 250, 0.8)",
     tileData: [{url: "img/type1.png", matched: function() {
         (mThree.matchesMade).push(1);
@@ -86,14 +87,25 @@ var mThree = {
                 mThree.popup.text = "No matches left, tiles reshuffled";
                 mThree.newGame(mThree.score);
             }
+            if(mThree.autoPlay) {
+                mThree.animation.time += b;
+                if(mThree.animation.time > mThree.animation.total) {
+                    mThree.findMoves();
+                    if((mThree.moves).length > 0) {
+                        var c = mThree.moves[Math.round(Math.random() * ((mThree.moves).length - 1))];
+                        mThree.mouseSwap(c.column1, c.row1, c.column2, c.row2);
+                    }
+                    mThree.animation.time = 0;
+                }
+            }
         }else if(mThree.gameState === 2) {
             mThree.animation.time += b;
             if(mThree.animation.state === 0) {
                 if(mThree.animation.time > mThree.animation.total) {
                     mThree.findClusters();
                     if((mThree.clusters).length > 0) {
-                        for(var c = 0; c < (mThree.clusters).length; c++) {
-                            mThree.score += 10 * (mThree.clusters[c].length - 2);
+                        for(var d = 0; d < (mThree.clusters).length; d++) {
+                            mThree.score += 10 * (mThree.clusters[d].length - 2);
                         }
                         mThree.removeClusters();
                         mThree.animation.state = 1;
