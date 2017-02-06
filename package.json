@@ -19,7 +19,8 @@
   },
   "scripts": {
     "dev": "set NODE_ENV=dev&& webpack-dev-server --content-base src --inline --hot",
-    "prod": "set NODE_ENV=production&& webpack -p"
+    "prod": "set NODE_ENV=production&& webpack -p",
+    "c9": "webpack-dev-server --port $PORT --host $IP  --content-base src"
   },
   "author": "",
   "license": "ISC"

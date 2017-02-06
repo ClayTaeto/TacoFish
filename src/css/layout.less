@@ -3,9 +3,11 @@ body {
 }
 
 .taco-wrap {
-	background-color: blue;
+	background-color: grey;
 	display:flex;
 	min-height: 100vh;
+	max-height: 100vh;
+	overflow: hidden;
   	flex: 1;
 }
 
@@ -13,6 +15,46 @@ body {
 	background-color: grey;
 	min-height: 100vh;
 	min-width: 25vw;
+    max-width: 25vw;
+    padding-top: 10vh;
+  	
+}
+
+.level {
+	min-height: 30vh;
+	display: flex;
+  	flex-direction: column-reverse;
+    background: white;
+}
+h1 {
+	text-align: center;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+}
+.menu {
+	display:flex;
+	//min-height: 20vh;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	text-align: center;
+	.menu-item {
+		min-width: 10vw;
+		padding: 5px;
+		margin-top:10px;
+    	font-size: 1.8em;
+	    border: 3px solid black;
+	}	
+}
+
+.endurance {
+	width:100%;
+	background-color: red;
+	height:.6em;
+	.current-endurance {
+		width: 85%;
+		height:100%;
+		background-color: green;
+	}
 }
 
 .match-it {
