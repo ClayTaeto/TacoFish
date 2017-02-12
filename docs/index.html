@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="tacoFish">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,6 +26,9 @@
 	  	</div>
 	  	<div class="traps">
 	  	</div>
+	  	<pre ng-controller="fishDebug as ctrl">
+	  		{{fish | json}}
+	  	</pre>
 	  </nav>
 	  <main class="match-it">
 	  	<div>

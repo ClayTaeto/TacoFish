@@ -43,7 +43,7 @@ var bSystem = {
     start: function() {
         var a = new bSystem.fish();
         bSystem.fishes.current = a;
-        alert("Caviar: " + a.caviar + ", Type: " + a.type + ", Size: " + a.size + ", HP: " + a.hp[0] + "/" + a.hp[1]);
+        //alert("Caviar: " + a.caviar + ", Type: " + a.type + ", Size: " + a.size + ", HP: " + a.hp[0] + "/" + a.hp[1]);
     },
 };
 
