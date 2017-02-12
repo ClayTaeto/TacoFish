@@ -5,6 +5,7 @@
   "main": "webpack.config.js",
   "private": true,
   "dependencies": {
+    "angular": "^1.6.2",
     "babel-core": "^6.11.4",
     "babel-loader": "^6.2.0",
     "babel-plugin-add-module-exports": "^0.1.2",
@@ -18,7 +19,7 @@
     "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
-    "dev": "set NODE_ENV=dev&& webpack-dev-server --content-base src --inline --hot",
+    "start": "set NODE_ENV=dev&& webpack-dev-server --content-base src --inline --hot",
     "prod": "set NODE_ENV=production&& webpack -p",
     "c9": "webpack-dev-server --port $PORT --host $IP  --content-base src"
   },

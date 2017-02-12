@@ -106,6 +106,7 @@ var mThree = {
                     if((mThree.clusters).length > 0) {
                         for(var d = 0; d < (mThree.clusters).length; d++) {
                             mThree.score += 10 * (mThree.clusters[d].length - 2);
+                            //todo: scored? 
                         }
                         mThree.removeClusters();
                         mThree.animation.state = 1;
@@ -442,8 +443,14 @@ var mThree = {
             }
         }
     },
+    matchHook: function(){
+        //ment to override this
+        //fuck I should probally just fire off an even instead of using callbacks. 
+    },
     removeClusters: function() {
         mThree.loopClusters(function(a, b, c, d) {
+            //Todo: figure out if this is where it should hook into when shit gets maaatched
+
             mThree.level.tiles[b][c].type = -1;
         }, "remove");
         for(var a = 0; a < mThree.level.columns; a++) {
@@ -558,5 +565,5 @@ var mThree = {
             y: Math.round((e.clientY - b.top) / (b.bottom - b.top) * a.height)
         };
     }
-};
-mThree.init();
+}
+export default mThree;
