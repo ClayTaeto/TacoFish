@@ -61,14 +61,63 @@ h1 {
 	background-color: tan;
 	min-height: 100vh;
 	min-width: 75vw;
+	max-width: 75vw;
+    overflow: hidden;
 }
 main{
     display: flex;    
     justify-content: center;
     }
 
-#mThree {
+#mThree, ng-view {
 	min-height: 80vh;
     margin-top: 10vh;
     cursor: pointer;
 }
+.item-element {
+    min-width: 20vw;
+    border: 5px solid red; 
+    padding: 8px;
+    margin:auto;
+    
+}
+.item-info-wrap {
+	display: flex; 
+    align-content: space-around;
+}
+.item-thumb {
+	width: 5em;
+    height: 5em;
+    background: black;
+    
+}
+.item-stats, .item-info {
+	margin: auto;
+    margin-top: .5em;
+    margin-left: 1em;
+}
+.item-name {
+	font-size: 1.5em;
+	margin: auto;
+}
+
+.trinket-thumb {
+	width: 2em;
+	height: 2em;
+	background: grey;
+	border: 1px solid black; 
+	margin-right: 1em;
+}
+.item-trinkets {
+	display: flex; 
+    align-content: space-between;
+    margin-top: 10px;
+}
+.trinket-thumb:first-child {
+	margin-left: 0;
+}
+/*.inv{
+	display: flex; 
+    align-content: space-around;
+    flex-wrap: wrap;
+}*/
