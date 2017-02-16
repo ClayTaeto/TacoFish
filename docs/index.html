@@ -9,30 +9,36 @@
 
 <body ondragstart="return false;" > <!-- oncontextmenu="return false;" -->
 	
-	<div class="taco-wrap">	  
+	<div class="taco-wrap" ng-controller="fishDebug as ctrl">	  
 	  <nav class="fish-it">
+	  	<a href="#/">
 	  	<div class="level">
-	  		<img src="img/boat.png" />
+	  		
+	  			<img src="img/boat.png" />
+	  		
 	  	</div>
+	  	</a>
 	  	<div class="endurance">
 	  		<div class="current-endurance"> </div>
 	  	</div>
 	  	<h1>Location Name</h1>
 	  	<div class="menu">
-	  		<button class="menu-item">Items</button>
-	  		<button class="menu-item">Travel</button>
-	  		<button class="menu-item">Fish</button>
-	  		<button class="menu-item">Shop</button>
+	  		<a href="#/inventory"><button class="menu-item">Items</button></a>
+	  		<a href="#/travel"><button class="menu-item">Travel</button></a>
+	  		<a href="#/fish"><button class="menu-item">Fish</button></a>
+	  		<a href="#/shop"><button class="menu-item">Shop</button></a>
 	  	</div>
 	  	<div class="traps">
 	  	</div>
-	  	<pre ng-controller="fishDebug as ctrl">
+	  	<pre >
 	  		{{fish | json}}
 	  	</pre>
+	  		{{ctrl | json}}
 	  </nav>
 	  <main class="match-it">
 	  	<div>
-	  		<canvas id="mThree"></canvas>
+	  		<canvas id="mThree" ng-show="ctrl.showCanvas"></canvas>
+	  		<div ng-view>Menues</div>
 	  	</div>
 	  </main>
 	</div>
