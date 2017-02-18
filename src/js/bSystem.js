@@ -9,7 +9,31 @@ var bSystem = {
     getFish(a) {
         // Changes arrays in bSystem.fishes to match the fish in location (a)
         //TODO: if fish ded then get new fish
+        bSystem.uiScope = a;
         return bSystem.fishes.current
+    },
+    uiScope: false,
+    matchHook: function(match, type){
+        switch(type){
+            case 1:
+                //heals? 
+                break;
+            case 2: 
+                //attacks? 
+                bSystem.fishes.current.hp -= match.length //* attack strength / 3
+                break;
+            case 3: 
+                //increase depth?
+            case 4:
+                //increase luck? 
+            case 5:
+                //decrease luck? SOMETHING?!
+        }
+        //not written in angular. This is easier then porting
+        if(bSystem.uiScope){
+            bSystem.uiScope.$apply();
+        }
+
     },
     fish: function(a) {
         var b = Math.random(), c, d, f = 1;
@@ -37,7 +61,8 @@ var bSystem = {
         c = Math.round(Math.random() * ((bSystem.fishes.sizes).length - 1));
         fish.size = bSystem.fishes.sizes[c];
         d = Math.max((c + 1) * 150, Math.round(Math.random() * ((c + 1) * 300))) * f;
-        fish.hp = [d, d]; // [current HP, total HP]
+        fish.hp = d
+        fish.maxHp = d
         return fish;
     },
     start: function() {
@@ -46,5 +71,4 @@ var bSystem = {
         //alert("Caviar: " + a.caviar + ", Type: " + a.type + ", Size: " + a.size + ", HP: " + a.hp[0] + "/" + a.hp[1]);
     },
 };
-
 export default bSystem;

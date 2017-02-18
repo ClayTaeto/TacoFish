@@ -32,8 +32,12 @@ app.config(["$routeProvider", "$locationProvider", function($routeProvider, $loc
 
 app.controller('fishDebug', ['$scope', "$location", function ($scope, $location) {
 	var ctrl = this
-    ctrl.fish = bSystem.getFish();
+    ctrl.fish = bSystem.getFish($scope);
     ctrl.showCanvas = false
+    ctrl.fishHp = function(){
+    	console.log(ctrl.fish.hp)
+    	return ctrl.fish.hp
+    }
     //I don't want to rewrite everything to be able to drop in and drop out the canvas
     $scope.$on('showCanvas', function (event, arg) {
     	console.log(arg)
@@ -56,10 +60,12 @@ app.controller('match3Controller', ['$scope', "$location", "$rootScope", functio
 }]);
 
 //TODO: move this out into it's own file
+
 app.controller('invController', ['$scope', function ($scope) {
     
 }]);
 
+mThree.matchHook = bSystem.matchHook;
 mThree.init();
 bSystem.start();
 

@@ -428,6 +428,7 @@ var mThree = {
             var h = 0;
             var i = mThree.level.tiles[f.column][f.row].type;
             c = false;
+            mThree.matchHook(f, i)
             for(var j = 0; j < f.length; j++) {
                 i = mThree.level.tiles[f.column + g][f.row + h].type;
                 a(d, f.column + g, f.row + h, f);
@@ -450,7 +451,6 @@ var mThree = {
     removeClusters: function() {
         mThree.loopClusters(function(a, b, c, d) {
             //Todo: figure out if this is where it should hook into when shit gets maaatched
-
             mThree.level.tiles[b][c].type = -1;
         }, "remove");
         for(var a = 0; a < mThree.level.columns; a++) {
