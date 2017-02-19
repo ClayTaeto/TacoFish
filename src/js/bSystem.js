@@ -17,17 +17,24 @@ var bSystem = {
         switch(type){
             case 1:
                 //heals? 
+                bSystem.fishes.current.hp -= match.length //* attack strength / 3
                 break;
             case 2: 
                 //attacks? 
-                bSystem.fishes.current.hp -= match.length //* attack strength / 3
+                bSystem.fishes.current.hp -= match.length * 10 //* attack strength / 3
                 break;
             case 3: 
                 //increase depth?
+                bSystem.fishes.current.hp -= match.length//* attack strength / 3
+                break;
             case 4:
                 //increase luck? 
+                bSystem.fishes.current.hp -= match.length //* attack strength / 3
+                break;
             case 5:
                 //decrease luck? SOMETHING?!
+                bSystem.fishes.current.hp -= match.length//* attack strength / 3
+                break;
         }
         //not written in angular. This is easier then porting
         if(bSystem.uiScope){

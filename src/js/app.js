@@ -2,9 +2,13 @@ require("file?name=[name].[ext]!../index.html");
 require("../css/layout.less");
 const mThree = require("./mThree.js").default
 const bSystem = require("./bSystem.js").default
+
 const angular = require("angular")
 const angularRoute = require("angular-route");
 var app = angular.module('tacoFish', ['ngRoute'])
+
+const inv = require("./inventory")(app)
+
 app.config(["$routeProvider", "$locationProvider", function($routeProvider, $locationProvider) {
     $routeProvider
         .when('/', {
@@ -61,8 +65,14 @@ app.controller('match3Controller', ['$scope', "$location", "$rootScope", functio
 
 //TODO: move this out into it's own file
 
-app.controller('invController', ['$scope', function ($scope) {
-    
+app.controller('invController', ['$scope', 'inventory', function ($scope, inv) {
+    $scope.inv = inv;
+    $scope.range = function(n) {
+    	if(!n){
+    		return []
+    	}
+        return new Array(n);
+    };
 }]);
 
 mThree.matchHook = bSystem.matchHook;
