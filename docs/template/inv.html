@@ -1,27 +1,31 @@
-<div>
+<div ng-controller="invController">
 	<h1>Inventory</h1>
 	<div class="inv">
-		<div class="item-element">
-			<div class="item-info-wrap">
-				<img src="" class="item-thumb">
-				<div class="item-info"> 
-					<div class="item-name">Ol Iron sides</div>
-					<div> Boat </div>
-				</div>
-				<div class="item-stats">
-					<div>ATK: 17 </div>
-					<div>Lck: -3 </div>
-					<div>Depth: 30m </div>
+		<div class="item-element" ng-repeat="item in inv.equipment">
+			<div style="display: flex">
+				<img ng-src="{{item.img}}" class="item-thumb">
+				<div class="item-info">
+					<div class="item-info-wrap">						
+						<div > 
+							<div class="item-name">{{item.name}}</div>
+							<div> {{item.category}} </div>
+						</div>
+						<div class="item-stats">
+							<div ng-repeat="(key, value) in item.baseBonus">{{key}}: {{value}} </div>
+						</div>
+					</div>
+					<div>{{item.description}}</div>
 				</div>
 			</div>
 			<div class="item-trinkets">
+				<img src="" class="trinket-thumb" ng-repeat="trinket in range(item.slots) track by $index">
+<!-- 				<img src="" class="trinket-thumb">
 				<img src="" class="trinket-thumb">
 				<img src="" class="trinket-thumb">
-				<img src="" class="trinket-thumb">
-				<img src="" class="trinket-thumb">
-				<img src="" class="trinket-thumb">
+				<img src="" class="trinket-thumb"> -->
 			</div>		
 		</div>
+		<!-- 
 		<div class="item-element">
 			<div class="item-info-wrap">
 				<img src="" class="item-thumb">
@@ -70,6 +74,8 @@
 			<div class="item-trinkets">
 				<img src="" class="trinket-thumb">
 			</div>		
-		</div>
+		</div> 
+	-->
 	</div>
+	<!-- <pre>{{inv | json}}</pre> -->
 </div>
