@@ -49,7 +49,7 @@ var inv = function(){
 	}
 
 	ctrl.save = function(){
-		window.localStorage.setItem('equiptment' , JSON.stringify(ctrl.equiptment));
+		window.localStorage.setItem('equipment' , JSON.stringify(ctrl.equipment));
 		window.localStorage.setItem('inventory' , JSON.stringify(ctrl.inventory));
 		window.localStorage.setItem('trinkets' , JSON.stringify(ctrl.trinkets));
 	}
