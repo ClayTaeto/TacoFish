@@ -31,6 +31,9 @@
 	  	<div class="traps">
 	  	</div>
 	  	<h1>HP: {{ctrl.fishHp()}}</h1>
+	  	<div style="padding: 1em">
+	  		<div ng-repeat="(key, value) in ctrl.stats"><b>{{key}}</b>: {{value}}</div>
+	  	</div>
 	  	{{bSystem | json}}
 	  	<pre >
 	  		{{fish | json}}

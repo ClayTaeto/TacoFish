@@ -39,6 +39,7 @@ app.controller('fishDebug', ['$scope', "$location", "$interval", "fish", "invent
 	var ctrl = this
     ctrl.fish = bSystem.getFish($scope);
     ctrl.showCanvas = false
+    ctrl.stats = inv.statsCache
     //TODO: move into battle system
     ctrl.fishHp = function(){
         if(ctrl.fish.hp < 0){
