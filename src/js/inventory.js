@@ -23,6 +23,12 @@ var inv = function(){
 	ctrl.trinkets = []
 	ctrl.trinketData = itemData.trinkets
 
+	ctrl.statsCache = {
+		attack: 0,
+		depth: 0,
+		luck: 0,
+	}
+
 
 	ctrl.load = function(){
 		var inv = JSON.parse(localStorage.getItem('inventory'));
@@ -76,7 +82,7 @@ var inv = function(){
 			return
 		//unload trinkets
 		console.log(newGear.name)
-		var oldGear = ctrl.equipment[newGear.type]
+		var oldGear = ctrl.equipment[newGear.category]
 		if(!newGear.trinkets){
 			newGear.trinkets = []
 		}
@@ -94,10 +100,35 @@ var inv = function(){
 				}
 			}			
 		}
+
 		ctrl.equipment[newGear.category] = newGear	
 		ctrl.itemHash[newGear.id] = newGear;
+		if(oldGear){
+			delete ctrl.itemHash[oldGear.id];
+		}
 
 		ctrl.save();
+		ctrl.updateStatsCache();
+	}
+
+	ctrl.updateStatsCache = function(){
+		ctrl.statsCache = {
+			attack: 0,
+			depth: 0,
+			luck: 0,
+		}
+		//TODO: Depth
+		//TODO: Attraction Bonuses
+		for(var i in ctrl.itemHash){
+			for(var stat in ctrl.itemHash[i].baseBonus){
+				if(!ctrl.statsCache[stat]){
+					ctrl.statsCache[stat] = 0
+				}
+				console.log(ctrl.itemHash[i].name + " " + stat + " " + ctrl.itemHash[i].baseBonus[stat])
+				ctrl.statsCache[stat] += ctrl.itemHash[i].baseBonus[stat]
+			}
+		}		
+		console.table(ctrl.statsCache)
 	}
 
 	//load that shit right up

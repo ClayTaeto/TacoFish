@@ -35,7 +35,7 @@ app.config(["$routeProvider", "$locationProvider", function($routeProvider, $loc
         $locationProvider.hashPrefix('');
 }]);
 
-app.controller('fishDebug', ['$scope', "$location", "$interval", "fish", function ($scope, $location, $interval, fish) {
+app.controller('fishDebug', ['$scope', "$location", "$interval", "fish", "inventory", function ($scope, $location, $interval, fish, inv) {
 	var ctrl = this
     ctrl.fish = bSystem.getFish($scope);
     ctrl.showCanvas = false
@@ -59,7 +59,7 @@ app.controller('fishDebug', ['$scope', "$location", "$interval", "fish", functio
 
     //TODO: move into battle system
     $interval(function(){
-        ctrl.fish.hp -= 4
+        ctrl.fish.hp -= inv.statsCache.attack
     }, 461)
 }]);
 
