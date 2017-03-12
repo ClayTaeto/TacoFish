@@ -1,7 +1,6 @@
 //TODO: load data
 const itemData = require("./gameData/items")
 const startingGear = require("./gameData/equipment/startingGear")
-debugger;
 var inv = function(){
 	var ctrl = {}
 	ctrl.sayHello = function(){
@@ -72,6 +71,9 @@ var inv = function(){
 
 	//todo: swap equiptment and migrate trinkets
 	ctrl.equipGear = function(newGear){
+		
+		if(!newGear)
+			return
 		//unload trinkets
 		console.log(newGear.name)
 		var oldGear = ctrl.equipment[newGear.type]

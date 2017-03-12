@@ -75,30 +75,33 @@ main{
     cursor: pointer;
 }
 .item-element {
-    min-width: 20vw;
-    border: 5px solid red; 
-    padding: 8px;
-    margin:auto;
-    
+    border: .25em solid #898989;
+    padding: .5em;
+    margin-right: 1em;
+    margin-bottom: -.25em;
+    max-height: 8em;
 }
 .item-info-wrap {
 	display: flex; 
     align-content: space-around;
+    position: relative;
 }
 .item-thumb {
-	width: 5em;
     height: 5em;
-    background: black;
-    
+    min-height: 5em;
+    min-width: 5em;
+    background: rgba(176, 176, 176, 0.78);
 }
 .item-stats, .item-info {
 	margin: auto;
-    margin-top: .5em;
     margin-left: 1em;
 }
 .item-name {
 	font-size: 1.5em;
 	margin: auto;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .trinket-thumb {
@@ -108,16 +111,61 @@ main{
 	border: 1px solid black; 
 	margin-right: 1em;
 }
+.item-description {
+	max-height: 2.2em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 .item-trinkets {
 	display: flex; 
     align-content: space-between;
     margin-top: 10px;
+    min-height: 2em;
+    background: rgba(255, 255, 255, 0.32);
 }
 .trinket-thumb:first-child {
 	margin-left: 0;
 }
-/*.inv{
+/*desktop! D:*/
+.inv-inuse {
+	min-width: 20vw;
+    max-width: 20vw;
+
+}
+.inv-inuse .item-stats {
+	margin: 0;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    font-weight: bold;
+}
+.inv{
+	min-width: 50vw;
+    max-width: 50vw;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.inv .item-thumb {
+    height: 6em;
+    min-height: 6em;
+    min-width: 6em;
+    background: rgba(176, 176, 176, 0.78);
+}
+
+.inv .item-name {
+	text-align: center;
+}
+.inv .item-element {
+    min-width: 9vw;
+    max-width: 9vw;
+}
+
+[ng-controller='invController']{
 	display: flex; 
     align-content: space-around;
-    flex-wrap: wrap;
-}*/
+}
+
+.views {
+	padding-top: 4vh;
+}

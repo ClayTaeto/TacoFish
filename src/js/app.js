@@ -34,12 +34,17 @@ app.config(["$routeProvider", "$locationProvider", function($routeProvider, $loc
         $locationProvider.hashPrefix('');
 }]);
 
-app.controller('fishDebug', ['$scope', "$location", function ($scope, $location) {
+app.controller('fishDebug', ['$scope', "$location", "$interval", function ($scope, $location, $interval) {
 	var ctrl = this
     ctrl.fish = bSystem.getFish($scope);
     ctrl.showCanvas = false
+    //TODO: move into battle system
     ctrl.fishHp = function(){
     	console.log(ctrl.fish.hp)
+        if(ctrl.fish.hp < 0){
+            //TODO: throw event
+            bSystem.fish()
+        }
     	return ctrl.fish.hp
     }
     //I don't want to rewrite everything to be able to drop in and drop out the canvas
@@ -51,6 +56,11 @@ app.controller('fishDebug', ['$scope', "$location", function ($scope, $location)
 	    	ctrl.showCanvas = false;
 	    }
   	});
+
+    //TODO: move into battle system
+    $interval(function(){
+        ctrl.fish.hp -= 4
+    }, 461)
 }]);
 
 app.controller('match3Controller', ['$scope', "$location", "$rootScope", function ($scope, $location, $rootScope) {
