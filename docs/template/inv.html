@@ -1,20 +1,20 @@
-<div ng-controller="invController">
-	<h1>Inventory</h1>
-	<div class="inv">
+<h1>Items</h1>
+<div ng-controller="invController">	
+	<div class="inv-inuse">
 		<div class="item-element" ng-repeat="item in inv.equipment">
 			<div style="display: flex">
 				<img ng-src="{{item.img}}" class="item-thumb">
 				<div class="item-info">
 					<div class="item-info-wrap">						
 						<div > 
-							<div class="item-name">{{item.name}}</div>
-							<div> {{item.category}} </div>
+							<div class="item-name">{{item.name || 'Empty'}}</div>
+							<div style="color: rgba(0, 0, 0, 0.7);"> {{item.category}} </div>
 						</div>
 						<div class="item-stats">
 							<div ng-repeat="(key, value) in item.baseBonus">{{key}}: {{value}} </div>
 						</div>
 					</div>
-					<div>{{item.description}}</div>
+					<div class="item-description">{{item.description}}</div>
 				</div>
 			</div>
 			<div class="item-trinkets">
@@ -25,6 +25,30 @@
 				<img src="" class="trinket-thumb"> -->
 			</div>		
 		</div>
+	</div>
+
+	<div class="inv">
+		<div class="item-element" ng-repeat="item in inv.inventory">
+
+				<div class="item-name">{{item.name || 'Empty'}}</div>
+				<div style="display:flex">
+					<a href="" ng-click="inv.equipGear(item)"><img ng-src="{{item.img}}" class="item-thumb"></a>
+					<div class="item-stats">
+						<div>slots: {{item.slots}} </div>
+						<div ng-repeat="(key, value) in item.baseBonus">{{key}}: {{value}} </div>
+					</div>
+				</div>	
+
+					
+					<div class="" style="
+    margin-top: 10px;
+">
+								
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 		<!-- 
 		<div class="item-element">
 			<div class="item-info-wrap">
@@ -76,6 +100,6 @@
 			</div>		
 		</div> 
 	-->
-	</div>
+
 	<!-- <pre>{{inv | json}}</pre> -->
 </div>
