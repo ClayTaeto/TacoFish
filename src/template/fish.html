@@ -1,4 +1,11 @@
 <div>
 	<h1>Fish-o-nomicon</h1>
 	<div> bunch of fish information </div>
+
+	<div ng-repeat="fish in fish.caughtFish"> 
+		<h2>{{fish.type}}</h2>
+		<img src="">
+		<div>Caught: {{fish.count}}</div>
+		...more stats.....
+	</div>
 </div>

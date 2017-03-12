@@ -8,6 +8,7 @@ const angularRoute = require("angular-route");
 var app = angular.module('tacoFish', ['ngRoute'])
 
 const inv = require("./inventory")(app)
+const fish = require("./fish")(app)
 
 app.config(["$routeProvider", "$locationProvider", function($routeProvider, $locationProvider) {
     $routeProvider
@@ -24,7 +25,7 @@ app.config(["$routeProvider", "$locationProvider", function($routeProvider, $loc
         })
         .when('/fish', {
             templateUrl: 'template/fish.html',
-            controller: 'invController'
+            controller: 'recordController'
         })
         .when('/shop', {
             templateUrl: 'template/shop.html',
@@ -34,15 +35,14 @@ app.config(["$routeProvider", "$locationProvider", function($routeProvider, $loc
         $locationProvider.hashPrefix('');
 }]);
 
-app.controller('fishDebug', ['$scope', "$location", "$interval", function ($scope, $location, $interval) {
+app.controller('fishDebug', ['$scope', "$location", "$interval", "fish", function ($scope, $location, $interval, fish) {
 	var ctrl = this
     ctrl.fish = bSystem.getFish($scope);
     ctrl.showCanvas = false
     //TODO: move into battle system
     ctrl.fishHp = function(){
-    	console.log(ctrl.fish.hp)
         if(ctrl.fish.hp < 0){
-            //TODO: throw event
+            fish.registerFish(ctrl.fish)
             bSystem.fish()
         }
     	return ctrl.fish.hp
@@ -81,6 +81,16 @@ app.controller('invController', ['$scope', 'inventory', function ($scope, inv) {
     	if(!n){
     		return []
     	}
+        return new Array(n);
+    };
+}]);
+
+app.controller('recordController', ['$scope', 'fish', function ($scope, fish) {
+    $scope.fish = fish;
+    $scope.range = function(n) {
+        if(!n){
+            return []
+        }
         return new Array(n);
     };
 }]);
