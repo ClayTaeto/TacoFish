@@ -42,6 +42,11 @@ var fish = function(){
 		window.localStorage.setItem('caughtFish' , JSON.stringify(ctrl.caughtFish));
 	}
 
+	ctrl.clean = function(){
+		ctrl.caughtFish = {}
+		ctrl.save();
+	}
+
 	ctrl.load();
 	//TODO: should I bring fish gen over here? 
 	return ctrl

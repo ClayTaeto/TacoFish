@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="tacoFish">
+<html lang="en" ng-app="tacoFish" >
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,10 +7,10 @@
   <title>TacoFish</title>
 </head>
 
-<body ondragstart="return false;" > <!-- oncontextmenu="return false;" -->
+<body ondragstart="return false;" id="app" style="display:none" onload="document.getElementById('app').style.display='block';"> <!-- oncontextmenu="return false;" -->
 	
 	<div class="taco-wrap" ng-controller="fishDebug as ctrl">	  
-	  <nav class="fish-it">
+	  <nav class="fish-it ng-hide" ng-show="true">
 	  	<a href="#/">
 	  	<div class="level">
 	  		
@@ -39,13 +39,27 @@
 	  		{{fish | json}}
 	  	</pre>
 	  		{{ctrl | json}}
+  		<div>
+  			<button ng-click="ctrl.clean()"> Soft reset </button>
+  			<button onclick="localStorage.clear(); location.reload();"> Nuke save </button>
+		</div>
 	  </nav>
-	  <main class="match-it">
+	  <main class="match-it ng-hide" ng-show="true">
 	  	<div>
 	  		<canvas id="mThree" ng-show="ctrl.showCanvas"></canvas>
 	  		<div ng-view class="views">Menues</div>
 	  	</div>
 	  </main>
+	  <div class="error-page" ng-class="{hidden: true}"> 
+	  	<h1> I'm sorry, there seems to be some issues </h1>
+	  	<div style="width:100%; height:100%">
+	  	<button 
+	  		style="margin: 0 auto;width: 40%;height: 10%;margin-left: 30%;font-size:4em" 
+	  		onclick="localStorage.clear(); location.reload();"> 
+	  		Nuke Save 
+	  	</button>
+	  </div>
+	  </div>
 	</div>
 	<script src="client.min.js"></script>
 </body>

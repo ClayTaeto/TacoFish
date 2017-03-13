@@ -32,7 +32,7 @@ var inv = function(){
 
 	ctrl.load = function(){
 		var inv = JSON.parse(localStorage.getItem('inventory'));
-		if (!inv) {
+		if (!inv || !inv.length) {
 			inv = startingGear;
 		}
 		ctrl.inventory = inv;
@@ -40,23 +40,40 @@ var inv = function(){
 		var trinkets = JSON.parse(localStorage.getItem('trinkets'));
 		if (trinkets && trinkets.length) {
 			ctrl.trinkets = trinkets;
-		}		
+		}
 
 		var equipment = JSON.parse(localStorage.getItem('equipment'));
-		if (!equipment) {
+		if (!equipment || !equipment.length) {
 			equipment = startingGear;
 		}
 
 		for(var i in equipment){
 			ctrl.equipGear(equipment[i]);
-		}		
+		}
 
 	}
 
-	ctrl.save = function(){
-		window.localStorage.setItem('equipment' , JSON.stringify(ctrl.equipment));
+	ctrl.save = function(){		
 		window.localStorage.setItem('inventory' , JSON.stringify(ctrl.inventory));
 		window.localStorage.setItem('trinkets' , JSON.stringify(ctrl.trinkets));
+		var equip = []
+		for(var i in ctrl.equipment){
+			if(ctrl.equipment[i])
+				equip.push(ctrl.equipment[i])
+		}
+		window.localStorage.setItem('equipment' , JSON.stringify(equip));
+	}
+
+	ctrl.clean = function(){
+		ctrl.inventory = []
+		ctrl.trinkets = [];	
+		for(var i in ctrl.equipment) {
+			ctrl.equipment[i] = null
+		}
+		ctrl.itemHash = {}
+		ctrl.save();
+		//load in order to go through asssigning starting gear
+		ctrl.load();		
 	}
 
 	ctrl.addItem = function(id){		
@@ -100,23 +117,22 @@ var inv = function(){
 				}
 			}			
 		}
-
-		ctrl.equipment[newGear.category] = newGear	
-		ctrl.itemHash[newGear.id] = newGear;
 		if(oldGear){
 			delete ctrl.itemHash[oldGear.id];
+			console.log("un-equiping " + oldGear.name)
 		}
+		ctrl.equipment[newGear.category] = newGear	
+		ctrl.itemHash[newGear.id] = newGear;
+		
 
 		ctrl.save();
 		ctrl.updateStatsCache();
 	}
 
 	ctrl.updateStatsCache = function(){
-		ctrl.statsCache = {
-			attack: 0,
-			depth: 0,
-			luck: 0,
-		}
+		ctrl.statsCache.attack = 0;
+		ctrl.statsCache.depth = 0;
+		ctrl.statsCache.luck = 0;
 		//TODO: Depth
 		//TODO: Attraction Bonuses
 		for(var i in ctrl.itemHash){
@@ -124,11 +140,11 @@ var inv = function(){
 				if(!ctrl.statsCache[stat]){
 					ctrl.statsCache[stat] = 0
 				}
-				console.log(ctrl.itemHash[i].name + " " + stat + " " + ctrl.itemHash[i].baseBonus[stat])
+				console.log("    " +ctrl.itemHash[i].name + " " + stat + " " + ctrl.itemHash[i].baseBonus[stat])
 				ctrl.statsCache[stat] += ctrl.itemHash[i].baseBonus[stat]
 			}
 		}		
-		console.table(ctrl.statsCache)
+		console.log(ctrl.statsCache)
 	}
 
 	//load that shit right up

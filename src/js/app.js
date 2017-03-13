@@ -48,6 +48,10 @@ app.controller('fishDebug', ['$scope', "$location", "$interval", "fish", "invent
         }
     	return ctrl.fish.hp
     }
+    ctrl.clean = function(){
+        fish.clean();
+        inv.clean();
+    }
     //I don't want to rewrite everything to be able to drop in and drop out the canvas
     $scope.$on('showCanvas', function (event, arg) {
     	console.log(arg)
