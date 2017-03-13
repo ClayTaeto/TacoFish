@@ -14,7 +14,7 @@
 							<div ng-repeat="(key, value) in item.baseBonus">{{key}}: {{value}} </div>
 						</div>
 					</div>
-					<div class="item-description">{{item.description}}</div>
+					<div class="item-description" title="{{item.description}}">{{item.description}}</div>
 				</div>
 			</div>
 			<div class="item-trinkets">
@@ -30,25 +30,19 @@
 	<div class="inv">
 		<div class="item-element" ng-repeat="item in inv.inventory">
 
-				<div class="item-name">{{item.name || 'Empty'}}</div>
-				<div style="display:flex">
-					<a href="" ng-click="inv.equipGear(item)"><img ng-src="{{item.img}}" class="item-thumb"></a>
-					<div class="item-stats">
-						<div>slots: {{item.slots}} </div>
-						<div ng-repeat="(key, value) in item.baseBonus">{{key}}: {{value}} </div>
-					</div>
-				</div>	
-
-					
-					<div class="" style="
-    margin-top: 10px;
-">
-								
-					</div>
+			<div class="item-name">{{item.name || 'Empty'}}</div>
+			<div style="display:flex">
+				<a href="" ng-click="inv.equipGear(item)"><img ng-src="{{item.img}}" class="item-thumb"></a>
+				<div class="item-stats">
+					<div>slots: {{item.slots}} </div>
+					<div ng-repeat="(key, value) in item.baseBonus">{{key}}: {{value}} </div>
 				</div>
-			</div>
+			</div>	
+
 		</div>
+		<pre class="inv-debug" ng-show="showDebug">{{inv.itemHash | json}}</pre>
 	</div>
+	<button ng-click="showDebug = showDebug ?  false : true"> Show debug</button>
 		<!-- 
 		<div class="item-element">
 			<div class="item-info-wrap">
